@@ -111,7 +111,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const MAX_TODOS = 30;
 
   todoHeading.addEventListener("click", () => {
-    // Check if we've reached the maximum number of todos
+    // Check the maximum number of todos
     if (todoListContainer.children.length >= MAX_TODOS) {
       return;
     }
@@ -129,8 +129,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const textSpan = document.createElement("span");
     textSpan.contentEditable = true;
-    textSpan.textContent = "New task";
-    textSpan.classList.add("is-placeholder");
+    textSpan.textContent = "";
     textSpan.style.color = "#808080";
 
     const deleteBtn = document.createElement("button");
@@ -145,34 +144,18 @@ document.addEventListener("DOMContentLoaded", () => {
     todoListContainer.appendChild(todoItem);
     textSpan.focus();
 
-    // Select all text when focused
-    textSpan.addEventListener("focus", () => {
-      const range = document.createRange();
-      range.selectNodeContents(textSpan);
-      const selection = window.getSelection();
-      selection.removeAllRanges();
-      selection.addRange(range);
-      if (textSpan.textContent === "New task") {
-        textSpan.classList.remove("is-placeholder");
-        textSpan.textContent = "";
-        textSpan.style.color = "#000000";
-      }
+    // Add event listener to remove placeholder as soon as user types
+    textSpan.addEventListener("input", () => {
+      textSpan.style.color = document.body.classList.contains("dark-mode")
+        ? "#ffffff"
+        : "#000000";
     });
 
-    // Save changes when clicking outside
+    // Reset color to grey if text is empty
     textSpan.addEventListener("blur", () => {
       if (textSpan.textContent.trim() === "") {
-        textSpan.textContent = "New task";
-        textSpan.classList.add("is-placeholder");
+        textSpan.textContent = "";
         textSpan.style.color = "#808080";
-      }
-    });
-
-    // Add event listeners to change text color when user starts typing
-    textSpan.addEventListener("input", () => {
-      textSpan.style.color = "#000000";
-      if (textSpan.textContent !== "New task") {
-        textSpan.classList.remove("is-placeholder");
       }
     });
   });
@@ -191,10 +174,10 @@ document.addEventListener("DOMContentLoaded", () => {
     timerBox.className = "timer-box";
 
     const timerTitle = document.createElement("input");
-    timerTitle.className = "timer-title is-placeholder";
+    timerTitle.className = "timer-title";
     timerTitle.type = "text";
-    timerTitle.placeholder = "Timer Title";
-    timerTitle.value = "Task Title " + (timerContainer.children.length + 1);
+    timerTitle.placeholder = "Task Title";
+    timerTitle.value = "";
     timerTitle.style.color = "#808080";
 
     const timerDisplay = document.createElement("div");
@@ -285,22 +268,18 @@ document.addEventListener("DOMContentLoaded", () => {
     pauseBtn.onclick = pauseTimer;
     resetBtn.onclick = resetTimer;
 
-    // Add event listeners to change text color when user starts typing
+    // Add event listener to remove placeholder as soon as user types
     timerTitle.addEventListener("input", () => {
-      timerTitle.style.color = "#000000";
-      if (timerTitle.value !== "Task Title " + timerContainer.children.length) {
-        timerTitle.classList.remove("is-placeholder");
-      }
+      timerTitle.style.color = document.body.classList.contains("dark-mode")
+        ? "#ffffff"
+        : "#000000";
     });
 
     // Reset color to grey if text is empty
     timerTitle.addEventListener("blur", () => {
       if (timerTitle.value.trim() === "") {
-        timerTitle.value = "Task Title " + (timerContainer.children.length + 1);
-        timerTitle.classList.add("is-placeholder");
+        timerTitle.value = "";
         timerTitle.style.color = "#808080";
-      } else {
-        timerTitle.classList.remove("is-placeholder");
       }
     });
   });
