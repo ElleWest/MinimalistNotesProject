@@ -595,11 +595,26 @@ body.dark-mode .timer-box:hover {
   outline: none;
 }
 
-/* Stopwatch placeholder text styling */
-.timer-title::placeholder {
+.timer-title.is-placeholder {
   color: #808080;
-  opacity: 0.7;
-  font-size: 0.7rem;
+}
+
+.timer-title:focus {
+  color: #000000;
+}
+
+body.dark-mode .timer-title {
+  background: none;
+  border: 1px solid #ffffff;
+  color: #ffffff;
+}
+
+body.dark-mode .timer-title.is-placeholder {
+  color: #808080;
+}
+
+body.dark-mode .timer-title:focus {
+  color: #ffffff;
 }
 
 .timer-display {
@@ -1078,6 +1093,47 @@ body.dark-mode .date-time-container:hover {
   font-size: 0.7rem;
 }
 
+.todo-item span[contenteditable="true"]:focus:empty:before {
+  content: "";
+}
+
+body.dark-mode .todo-item span[contenteditable="true"]:empty:before {
+  color: #ffffff;
+}
+
+body.dark-mode .todo-item span[contenteditable="true"]:focus:empty:before {
+  content: "";
+}
+
+body.dark-mode .todo-item span[contenteditable="true"] {
+  color: #ffffff;
+}
+
+/* Stopwatch placeholder text styling */
+.timer-title::placeholder {
+  color: #ffffff;
+  opacity: 0.7;
+  font-size: 0.7rem;
+}
+
+.timer-title:focus::placeholder {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+body.dark-mode .timer-title::placeholder {
+  color: #ffffff;
+}
+
+body.dark-mode .timer-title:focus::placeholder {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+body.dark-mode .timer-title {
+  color: #ffffff;
+}
+
 .weather-container.minimized {
   height: auto;
   min-height: 50px;
@@ -1164,7 +1220,7 @@ body.dark-mode .timer-title {
 body.dark-mode .location-input::placeholder,
 body.dark-mode .timer-title::placeholder,
 body.dark-mode .note::placeholder {
-  color: #808080;
+  color: #ffffff;
 }
 
 body.dark-mode .progress-bar {
@@ -1216,9 +1272,49 @@ body.dark-mode #addTimerBtn {
   color: #ffffff;
 }
 
-/* Ensure placeholder text remains grey */
+/* Dark mode placeholder text styling */
 body.dark-mode .todo-item span[contenteditable="true"]:empty:before {
-  color: #808080;
+  content: "New task";
+  color: #ffffff;
+  opacity: 0.7;
+  font-size: 0.7rem;
+}
+
+body.dark-mode .todo-item span[contenteditable="true"]:focus:empty:before {
+  content: "";
+}
+
+body.dark-mode .timer-title::placeholder {
+  color: #ffffff;
+  opacity: 0.7;
+  font-size: 0.7rem;
+}
+
+body.dark-mode .timer-title:focus::placeholder {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+body.dark-mode .location-input::placeholder {
+  color: #ffffff;
+  opacity: 0.7;
+  font-size: 0.7rem;
+}
+
+body.dark-mode .location-input:focus::placeholder {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+body.dark-mode .note::placeholder {
+  color: #ffffff;
+  opacity: 0.7;
+  font-size: 0.7rem;
+}
+
+body.dark-mode .note:focus::placeholder {
+  opacity: 0;
+  transition: opacity 0.2s ease;
 }
 
 /* Responsive styles for dark mode toggle */
@@ -1471,4 +1567,30 @@ body.dark-mode .todo-item button {
 .todo-item button:hover,
 body.dark-mode .todo-item button:hover {
   color: rgb(145, 203, 65) !important;
+}
+
+body.dark-mode .is-placeholder,
+body.dark-mode .note::placeholder,
+body.dark-mode .timer-title::placeholder,
+body.dark-mode .location-input::placeholder {
+  color: #b0b0b0 !important;
+}
+
+body.dark-mode .note,
+body.dark-mode .timer-title,
+body.dark-mode .location-input,
+body.dark-mode .todo-item span:not(.is-placeholder) {
+  color: #fff !important;
+}
+
+body.dark-mode .todo-item span {
+  color: #ffffff !important;
+}
+
+body.dark-mode .todo-item span[contenteditable="true"] {
+  color: #ffffff !important;
+}
+
+body.dark-mode .todo-item span[contenteditable="true"]:empty:before {
+  color: #ffffff;
 }
