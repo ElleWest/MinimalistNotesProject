@@ -42,19 +42,34 @@ function parseJwt(token) {
 function updateSignInUI() {
   const signInDiv = document.getElementById("signinBtn");
 
+  // Clear any existing content and event listeners
+  signInDiv.innerHTML = "";
+  signInDiv.onclick = null;
+  signInDiv.style.cssText = ""; // Reset any inline styles
+
   if (currentUser) {
-    // User is signed in - show their name and sign out option
+    // User is signed in - show their name only, click to sign out
     signInDiv.innerHTML = `
-      <div style="display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.6rem;">
+      <div style="display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.6rem; width: 100%; height: 100%;">
         <img src="${
           currentUser.picture
-        }" alt="Profile" style="width: 20px; height: 20px; border-radius: 50%;">
-        <span style="max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${
+        }" alt="Profile" style="width: 18px; height: 18px; border-radius: 50%; flex-shrink: 0;">
+        <span style="max-width: 60px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex-shrink: 1;">${
           currentUser.name.split(" ")[0]
         }</span>
-        <button onclick="signOut()" style="font-size: 0.5rem; padding: 2px 4px; margin-left: 4px;">Out</button>
       </div>
     `;
+
+    // Make the entire button clickable to sign out
+    signInDiv.onclick = () => {
+      if (confirm(`Sign out ${currentUser.name.split(" ")[0]}?`)) {
+        signOut();
+      }
+    };
+
+    // Add hover effect to indicate it's clickable
+    signInDiv.style.cursor = "pointer";
+    signInDiv.title = "Click to sign out";
   } else {
     // User is signed out - show Google sign in button
     signInDiv.innerHTML = "Sign In";
@@ -63,6 +78,8 @@ function updateSignInUI() {
         google.accounts.id.prompt();
       }
     };
+    signInDiv.style.cursor = "pointer";
+    signInDiv.title = "Sign in with Google";
   }
 }
 
@@ -73,7 +90,7 @@ function signOut() {
     google.accounts.id.disableAutoSelect();
   }
   updateSignInUI();
-  alert("You have been signed out.");
+  console.log("User signed out successfully");
 }
 
 // Initialize Google Auth when page loads
