@@ -87,6 +87,18 @@ function initializeGoogleAuth() {
 
     // Initialize the sign-in button
     updateSignInUI();
+
+    // Hide any Google-generated elements that might appear
+    setTimeout(() => {
+      const googleElements = document.querySelectorAll(
+        "[data-client_id], .g_id_signin"
+      );
+      googleElements.forEach((el) => {
+        if (el.id !== "signinBtn") {
+          el.style.display = "none";
+        }
+      });
+    }, 500);
   }
 }
 
