@@ -347,7 +347,7 @@ This project integrates with several external services:
 
 ## 📄 License
 
-This project was created as part of a student assignment. No license is attached.
+This project was created as part of a student assignment. ISC license is attached.
 
 ## 👩‍💻 Author
 
