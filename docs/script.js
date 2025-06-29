@@ -28,40 +28,63 @@ async function apiRequest(endpoint, options = {}) {
 
 // Load user's notes from backend
 async function loadUserNotes() {
-  if (!currentUser) return;
+  if (!currentUser) {
+    console.log("❌ No user logged in, skipping notes load");
+    return;
+  }
+
+  console.log("📝 Loading notes for user:", currentUser.id);
 
   try {
-    const notes = await apiRequest(`/api/notes?userId=${currentUser.id}`);
+    const url = `/api/notes?userId=${currentUser.id}`;
+    console.log("🌐 Fetching notes from:", API_BASE_URL + url);
+
+    const notes = await apiRequest(url);
+    console.log("📦 Received notes:", notes);
 
     // Clear existing notes in UI
     const notesContainer = document.getElementById("notesContainer");
     notesContainer.innerHTML = "";
 
     // Display notes from backend
-    notes.forEach((noteData) => {
+    notes.forEach((noteData, index) => {
+      console.log(`📝 Creating note ${index + 1}:`, noteData);
       createNoteElement(noteData.title, noteData.content, noteData._id);
     });
 
-    console.log("Notes loaded successfully");
+    console.log(`✅ Notes loaded successfully: ${notes.length} notes`);
   } catch (error) {
-    console.error("Failed to load notes:", error);
+    console.error("❌ Failed to load notes:", error);
   }
 }
 
 // Save note to backend
 async function saveNoteToBackend(title, content, noteId = null) {
-  if (!currentUser) return null;
+  if (!currentUser) {
+    console.log("❌ No user logged in, cannot save note");
+    return null;
+  }
+
+  console.log("💾 Saving note:", {
+    title,
+    content: content.substring(0, 50) + "...",
+    noteId,
+    userId: currentUser.id,
+  });
 
   try {
     if (noteId) {
       // Update existing note
+      console.log("🔄 Updating existing note:", noteId);
       await apiRequest(`/api/notes/${noteId}`, {
         method: "PUT",
         body: JSON.stringify({ title, content }),
       });
+      console.log("✅ Note updated successfully");
       return noteId;
     } else {
       // Create new note
+      console.log("➕ Creating new note");
       const response = await apiRequest("/api/notes", {
         method: "POST",
         body: JSON.stringify({
@@ -70,10 +93,11 @@ async function saveNoteToBackend(title, content, noteId = null) {
           userId: currentUser.id,
         }),
       });
+      console.log("✅ Note created successfully:", response._id);
       return response._id;
     }
   } catch (error) {
-    console.error("Failed to save note:", error);
+    console.error("❌ Failed to save note:", error);
     return null;
   }
 }
@@ -94,23 +118,33 @@ async function deleteNoteFromBackend(noteId) {
 
 // Todo API Functions
 async function loadUserTodos() {
-  if (!currentUser) return;
+  if (!currentUser) {
+    console.log("❌ No user logged in, skipping todos load");
+    return;
+  }
+
+  console.log("✅ Loading todos for user:", currentUser.id);
 
   try {
-    const todos = await apiRequest(`/api/todos?userId=${currentUser.id}`);
+    const url = `/api/todos?userId=${currentUser.id}`;
+    console.log("🌐 Fetching todos from:", API_BASE_URL + url);
+
+    const todos = await apiRequest(url);
+    console.log("📦 Received todos:", todos);
 
     // Clear existing todos in UI
     const todoListContainer = document.querySelector(".todo-list-container");
     todoListContainer.innerHTML = "";
 
     // Display todos from backend
-    todos.forEach((todoData) => {
+    todos.forEach((todoData, index) => {
+      console.log(`✅ Creating todo ${index + 1}:`, todoData);
       createTodoElement(todoData.text, todoData.completed, todoData._id);
     });
 
-    console.log("Todos loaded successfully");
+    console.log(`✅ Todos loaded successfully: ${todos.length} todos`);
   } catch (error) {
-    console.error("Failed to load todos:", error);
+    console.error("❌ Failed to load todos:", error);
   }
 }
 
@@ -158,23 +192,33 @@ async function deleteTodoFromBackend(todoId) {
 
 // Timer API Functions
 async function loadUserTimers() {
-  if (!currentUser) return;
+  if (!currentUser) {
+    console.log("❌ No user logged in, skipping timers load");
+    return;
+  }
+
+  console.log("⏱️ Loading timers for user:", currentUser.id);
 
   try {
-    const timers = await apiRequest(`/api/timers?userId=${currentUser.id}`);
+    const url = `/api/timers?userId=${currentUser.id}`;
+    console.log("🌐 Fetching timers from:", API_BASE_URL + url);
+
+    const timers = await apiRequest(url);
+    console.log("📦 Received timers:", timers);
 
     // Clear existing timers in UI
     const timerContainer = document.querySelector(".timer-container");
     timerContainer.innerHTML = "";
 
     // Display timers from backend
-    timers.forEach((timerData) => {
+    timers.forEach((timerData, index) => {
+      console.log(`⏱️ Creating timer ${index + 1}:`, timerData);
       createTimerElement(timerData.title, timerData.elapsedTime, timerData._id);
     });
 
-    console.log("Timers loaded successfully");
+    console.log(`✅ Timers loaded successfully: ${timers.length} timers`);
   } catch (error) {
-    console.error("Failed to load timers:", error);
+    console.error("❌ Failed to load timers:", error);
   }
 }
 
@@ -222,6 +266,8 @@ async function deleteTimerFromBackend(timerId) {
 
 // This function handles the response from Google
 function handleCredentialResponse(response) {
+  console.log("🔐 Google sign-in response received");
+
   // Decode the JWT token to get user info
   const userInfo = parseJwt(response.credential);
 
@@ -232,12 +278,13 @@ function handleCredentialResponse(response) {
     picture: userInfo.picture,
   };
 
-  console.log("User signed in:", currentUser);
+  console.log("👤 User signed in:", currentUser);
 
   // Update the UI to show the user is signed in
   updateSignInUI();
 
   // Load user's data from backend
+  console.log("📊 Loading user data from backend...");
   loadUserNotes();
   loadUserTodos();
   loadUserTimers();
@@ -309,6 +356,7 @@ function updateSignInUI() {
 
 // Sign out function
 function signOut() {
+  console.log("🚪 Starting sign out process...");
   currentUser = null;
 
   // Clear all user data when signing out
@@ -327,11 +375,22 @@ function signOut() {
     timerContainer.innerHTML = "";
   }
 
+  // Properly reset Google Sign-In
   if (window.google) {
     google.accounts.id.disableAutoSelect();
+    // Re-initialize Google Auth to make sign-in work again
+    setTimeout(() => {
+      console.log("🔄 Re-initializing Google Auth...");
+      google.accounts.id.initialize({
+        client_id:
+          "1038950117037-i0buqo6336f193107jlqbuk4egkn85pn.apps.googleusercontent.com",
+        callback: handleCredentialResponse,
+      });
+    }, 100);
   }
+
   updateSignInUI();
-  console.log("User signed out successfully");
+  console.log("✅ User signed out successfully");
 }
 
 // Initialize Google Auth when page loads
