@@ -78,6 +78,8 @@ PORT=3000
 5. Go to Clusters → Connect → Connect your application
 6. Copy the connection string and replace `<password>` with your user password
 
+👉 Reminder: Be sure to insert a valid MONGO_URI in your .env file, using your own MongoDB Atlas cluster or local database connection.
+
 ### 4. Start the Backend Server
 
 ```bash
@@ -95,11 +97,22 @@ cd ../docs
 Open `index.html` in your web browser or serve with a local development server (e.g., Live Server extension in VS Code).
 
 **Note:** The frontend is deployed live on GitHub Pages. Local setup is only needed for development.
+⚠️ Note on Google Login (OAuth)
+
+Google login is fully functional on the deployed frontend at:
+https://ellewest.github.io/MinimalistNotesProject/
+
+Due to Google OAuth restrictions, login may not work on localhost or unregistered domains.
+
+👉 To test Google authentication, please use the live site instead of the local frontend.
 
 ### Production Deployment
 
 - **Frontend**: Deployed on GitHub Pages at [https://ellewest.github.io/MinimalistNotesProject/](https://ellewest.github.io/MinimalistNotesProject/)
 - **Backend**: Deployed on Render at [https://minimalist-notes-backend.onrender.com](https://minimalist-notes-backend.onrender.com)
+
+Note: The backend is hosted on Render’s free tier, which may cause a delay of up to 60 seconds when loading the app for the first time after a period of inactivity. 
+Please wait a moment if the app seems slow initially.
 
 ## 🛠️ Technology Stack
 
@@ -322,7 +335,7 @@ This project integrates with several external services:
 
 **APIs Requiring Keys:**
 
-- **API Ninjas**: Primary quote service (requires free account at [api.api-ninjas.com](https://api.api-ninjas.com))
+- **API Ninjas**: Primary quote service (requires free account at [api-ninjas.com](https://api-ninjas.com/))
   - 10,000 free requests per day
   - CORS-friendly for browser usage
 
