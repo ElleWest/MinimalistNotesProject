@@ -4,6 +4,8 @@ let currentUser = null;
 // Backend API Configuration
 const API_BASE_URL = "https://minimalist-notes-backend.onrender.com";
 
+console.log("🚀 Script starting to load...");
+
 // API Functions for Backend Integration
 async function apiRequest(endpoint, options = {}) {
   try {
@@ -25,6 +27,8 @@ async function apiRequest(endpoint, options = {}) {
     throw error;
   }
 }
+
+console.log("✅ API functions loaded");
 
 // Load user's notes from backend
 async function loadUserNotes() {
@@ -222,6 +226,8 @@ async function loadUserTimers() {
   }
 }
 
+console.log("✅ Load functions defined");
+
 async function saveTimerToBackend(title, elapsedTime, timerId = null) {
   if (!currentUser) return null;
 
@@ -341,6 +347,8 @@ function createNoteElement(title = "", content = "", noteId = null) {
   return { noteWrapper, note };
 }
 
+console.log("✅ createNoteElement function defined");
+
 // Helper function to create todo elements
 function createTodoElement(text = "", completed = false, todoId = null) {
   const todoListContainer = document.querySelector(".todo-list-container");
@@ -423,6 +431,8 @@ function createTodoElement(text = "", completed = false, todoId = null) {
 
   return { todoItem, textSpan };
 }
+
+console.log("✅ createTodoElement function defined");
 
 // Helper function to create timer elements
 function createTimerElement(title = "", elapsedTime = 0, timerId = null) {
@@ -576,6 +586,9 @@ function createTimerElement(title = "", elapsedTime = 0, timerId = null) {
   return { timerBox, timerTitle };
 }
 
+console.log("✅ createTimerElement function defined");
+console.log("✅ ALL UI HELPER FUNCTIONS LOADED!");
+
 // This function handles the response from Google
 function handleCredentialResponse(response) {
   console.log("🔐 Google sign-in response received");
@@ -597,6 +610,14 @@ function handleCredentialResponse(response) {
 
   // Load user's data from backend
   console.log("📊 Loading user data from backend...");
+  console.log("🔍 Checking if functions exist before calling:");
+  console.log("- loadUserNotes:", typeof loadUserNotes);
+  console.log("- loadUserTodos:", typeof loadUserTodos);
+  console.log("- loadUserTimers:", typeof loadUserTimers);
+  console.log("- createNoteElement:", typeof createNoteElement);
+  console.log("- createTodoElement:", typeof createTodoElement);
+  console.log("- createTimerElement:", typeof createTimerElement);
+
   loadUserNotes();
   loadUserTodos();
   loadUserTimers();
@@ -1331,3 +1352,5 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 });
+
+console.log("✅ Google Auth functions defined");
