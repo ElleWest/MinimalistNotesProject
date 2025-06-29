@@ -251,6 +251,7 @@ async function saveTimerToBackend(title, elapsedTime, timerId = null) {
   }
 }
 
+// Delete timer from backend
 async function deleteTimerFromBackend(timerId) {
   if (!currentUser || !timerId) return;
 
@@ -262,6 +263,317 @@ async function deleteTimerFromBackend(timerId) {
   } catch (error) {
     console.error("Failed to delete timer:", error);
   }
+}
+
+// Global helper functions for creating UI elements
+// Placeholder texts for notes
+const placeholderTexts = [
+  "Nota Bene",
+  "Memento Scribere",
+  "Scriptum Est",
+  "Cogita et Crea",
+  "Verba Volant",
+  "Carpe Verbum",
+  "Lumen Mentis",
+  "Vox Silens",
+  "Capere Vacuum",
+  "Inscribe Mens",
+  "Congela Fluxum",
+  "Pensara Ignis",
+  "Echo Scribit",
+  "Sequere Pulsus",
+  "Semper Scribe",
+];
+
+// Helper function to create note elements (used for both new notes and loaded notes)
+function createNoteElement(title = "", content = "", noteId = null) {
+  const notesContainer = document.getElementById("notesContainer");
+
+  // Create note wrapper
+  const noteWrapper = document.createElement("div");
+  noteWrapper.className = "note-wrapper";
+  noteWrapper.dataset.noteId = noteId; // Store backend ID
+
+  // Create new note
+  const note = document.createElement("textarea");
+  note.className = "note";
+  note.value = content;
+
+  // Get the current number of notes (before adding the new one)
+  const currentNoteCount = notesContainer.children.length;
+  // Set the placeholder text based on the position
+  note.placeholder = placeholderTexts[currentNoteCount] || "Note";
+
+  // Auto-save functionality
+  let saveTimeout;
+  note.addEventListener("input", () => {
+    clearTimeout(saveTimeout);
+    saveTimeout = setTimeout(async () => {
+      if (currentUser && note.value.trim()) {
+        const savedNoteId = await saveNoteToBackend("Note", note.value, noteId);
+        if (savedNoteId && !noteId) {
+          // Update the wrapper with the new ID for future updates
+          noteWrapper.dataset.noteId = savedNoteId;
+          noteId = savedNoteId;
+        }
+      }
+    }, 1000); // Save after 1 second of no typing
+  });
+
+  // Create delete button
+  const deleteBtn = document.createElement("button");
+  deleteBtn.className = "delete-btn";
+  deleteBtn.textContent = "✖";
+  deleteBtn.addEventListener("click", async () => {
+    if (noteId) {
+      await deleteNoteFromBackend(noteId);
+    }
+    noteWrapper.remove();
+  });
+
+  // Append elements to wrapper
+  noteWrapper.appendChild(note);
+  noteWrapper.appendChild(deleteBtn);
+
+  // Add the new note at the beginning of the container
+  notesContainer.insertBefore(noteWrapper, notesContainer.firstChild);
+
+  return { noteWrapper, note };
+}
+
+// Helper function to create todo elements
+function createTodoElement(text = "", completed = false, todoId = null) {
+  const todoListContainer = document.querySelector(".todo-list-container");
+
+  const todoItem = document.createElement("div");
+  todoItem.className = "todo-item";
+  todoItem.dataset.todoId = todoId; // Store backend ID
+
+  const checkbox = document.createElement("input");
+  checkbox.type = "checkbox";
+  checkbox.checked = completed;
+
+  const textSpan = document.createElement("span");
+  textSpan.contentEditable = true;
+  textSpan.textContent = text;
+  textSpan.style.color = text
+    ? document.body.classList.contains("dark-mode")
+      ? "#ffffff"
+      : "#000000"
+    : "#808080";
+  textSpan.style.textDecoration = completed ? "line-through" : "none";
+
+  const deleteBtn = document.createElement("button");
+  deleteBtn.textContent = "✖";
+
+  // Auto-save functionality for todos
+  let todoSaveTimeout;
+  const saveTodo = async () => {
+    if (currentUser && textSpan.textContent.trim()) {
+      const savedTodoId = await saveTodoToBackend(
+        textSpan.textContent.trim(),
+        checkbox.checked,
+        todoId
+      );
+      if (savedTodoId && !todoId) {
+        todoItem.dataset.todoId = savedTodoId;
+        todoId = savedTodoId;
+      }
+    }
+  };
+
+  checkbox.addEventListener("change", () => {
+    textSpan.style.textDecoration = checkbox.checked ? "line-through" : "none";
+    clearTimeout(todoSaveTimeout);
+    todoSaveTimeout = setTimeout(saveTodo, 500);
+  });
+
+  textSpan.addEventListener("input", () => {
+    textSpan.style.color = document.body.classList.contains("dark-mode")
+      ? "#ffffff"
+      : "#000000";
+    clearTimeout(todoSaveTimeout);
+    todoSaveTimeout = setTimeout(saveTodo, 1000);
+  });
+
+  textSpan.addEventListener("blur", () => {
+    if (textSpan.textContent.trim() === "") {
+      textSpan.textContent = "";
+      textSpan.style.color = "#808080";
+    }
+  });
+
+  deleteBtn.onclick = async () => {
+    if (todoId) {
+      await deleteTodoFromBackend(todoId);
+    }
+    todoItem.remove();
+  };
+
+  // Append elements to todoItem in correct order
+  todoItem.appendChild(checkbox);
+  todoItem.appendChild(textSpan);
+  todoItem.appendChild(deleteBtn);
+
+  todoListContainer.appendChild(todoItem);
+
+  if (!text) {
+    textSpan.focus();
+  }
+
+  return { todoItem, textSpan };
+}
+
+// Helper function to create timer elements
+function createTimerElement(title = "", elapsedTime = 0, timerId = null) {
+  const timerContainer = document.querySelector(".timer-container");
+
+  const timerBox = document.createElement("div");
+  timerBox.className = "timer-box";
+  timerBox.dataset.timerId = timerId; // Store backend ID
+
+  const timerTitle = document.createElement("input");
+  timerTitle.className = "timer-title";
+  timerTitle.type = "text";
+  timerTitle.placeholder = "Task Title";
+  timerTitle.value = title;
+  timerTitle.style.color = title
+    ? document.body.classList.contains("dark-mode")
+      ? "#ffffff"
+      : "#000000"
+    : "#808080";
+
+  const timerDisplay = document.createElement("div");
+  timerDisplay.className = "timer-display";
+
+  const timerControls = document.createElement("div");
+  timerControls.className = "timer-controls";
+
+  const startBtn = document.createElement("button");
+  startBtn.textContent = "▶️";
+
+  const pauseBtn = document.createElement("button");
+  pauseBtn.textContent = "⏸️";
+  pauseBtn.style.display = "none";
+
+  const resetBtn = document.createElement("button");
+  resetBtn.textContent = "🔄";
+
+  const deleteBtn = document.createElement("button");
+  deleteBtn.textContent = "⏹️";
+
+  timerControls.appendChild(startBtn);
+  timerControls.appendChild(pauseBtn);
+  timerControls.appendChild(resetBtn);
+  timerControls.appendChild(deleteBtn);
+
+  timerBox.appendChild(timerTitle);
+  timerBox.appendChild(timerDisplay);
+  timerBox.appendChild(timerControls);
+
+  timerContainer.appendChild(timerBox);
+
+  // Independent timer state
+  timerBox._interval = null;
+  timerBox._startTime = null;
+  timerBox._elapsedTime = elapsedTime;
+
+  // Auto-save functionality for timers
+  let timerSaveTimeout;
+  const saveTimer = async () => {
+    if (currentUser && timerTitle.value.trim()) {
+      const savedTimerId = await saveTimerToBackend(
+        timerTitle.value.trim(),
+        timerBox._elapsedTime,
+        timerId
+      );
+      if (savedTimerId && !timerId) {
+        timerBox.dataset.timerId = savedTimerId;
+        timerId = savedTimerId;
+      }
+    }
+  };
+
+  timerTitle.addEventListener("input", () => {
+    timerTitle.style.color = document.body.classList.contains("dark-mode")
+      ? "#ffffff"
+      : "#000000";
+    clearTimeout(timerSaveTimeout);
+    timerSaveTimeout = setTimeout(saveTimer, 1000);
+  });
+
+  function updateDisplay() {
+    const totalSeconds = Math.floor(timerBox._elapsedTime / 1000);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    timerDisplay.textContent = `${hours.toString().padStart(2, "0")}:${minutes
+      .toString()
+      .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+  }
+
+  function startTimer() {
+    if (timerBox._interval) return; // Already running
+
+    timerBox._startTime = Date.now() - timerBox._elapsedTime;
+    timerBox._interval = setInterval(() => {
+      timerBox._elapsedTime = Date.now() - timerBox._startTime;
+      updateDisplay();
+    }, 1000);
+
+    startBtn.style.display = "none";
+    pauseBtn.style.display = "inline-block";
+  }
+
+  function pauseTimer() {
+    if (timerBox._interval) {
+      clearInterval(timerBox._interval);
+      timerBox._interval = null;
+      saveTimer(); // Save when paused
+    }
+
+    startBtn.style.display = "inline-block";
+    pauseBtn.style.display = "none";
+  }
+
+  function resetTimer() {
+    if (timerBox._interval) {
+      clearInterval(timerBox._interval);
+      timerBox._interval = null;
+    }
+
+    timerBox._elapsedTime = 0;
+    timerBox._startTime = null;
+    updateDisplay();
+    saveTimer(); // Save when reset
+
+    startBtn.style.display = "inline-block";
+    pauseBtn.style.display = "none";
+  }
+
+  // Event listeners
+  startBtn.addEventListener("click", startTimer);
+  pauseBtn.addEventListener("click", pauseTimer);
+  resetBtn.addEventListener("click", resetTimer);
+  deleteBtn.addEventListener("click", async () => {
+    if (timerBox._interval) {
+      clearInterval(timerBox._interval);
+    }
+    if (timerId) {
+      await deleteTimerFromBackend(timerId);
+    }
+    timerBox.remove();
+  });
+
+  // Initialize display
+  updateDisplay();
+
+  if (!title) {
+    timerTitle.focus();
+  }
+
+  return { timerBox, timerTitle };
 }
 
 // This function handles the response from Google
@@ -472,324 +784,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const notesContainer = document.getElementById("notesContainer");
   // Maximum number of notes
   const MAX_NOTES = 15;
-  // Placeholder texts
-  const placeholderTexts = [
-    "Nota Bene",
-    "Memento Scribere",
-    "Scriptum Est",
-    "Cogita et Crea",
-    "Verba Volant",
-    "Carpe Verbum",
-    "Lumen Mentis",
-    "Vox Silens",
-    "Capere Vacuum",
-    "Inscribe Mens",
-    "Congela Fluxum",
-    "Pensara Ignis",
-    "Echo Scribit",
-    "Sequere Pulsus",
-    "Semper Scribe",
-  ];
-
-  // Helper function to create note elements (used for both new notes and loaded notes)
-  function createNoteElement(title = "", content = "", noteId = null) {
-    // Create note wrapper
-    const noteWrapper = document.createElement("div");
-    noteWrapper.className = "note-wrapper";
-    noteWrapper.dataset.noteId = noteId; // Store backend ID
-
-    // Create new note
-    const note = document.createElement("textarea");
-    note.className = "note";
-    note.value = content;
-
-    // Get the current number of notes (before adding the new one)
-    const currentNoteCount = notesContainer.children.length;
-    // Set the placeholder text based on the position
-    note.placeholder = placeholderTexts[currentNoteCount] || "Note";
-
-    // Auto-save functionality
-    let saveTimeout;
-    note.addEventListener("input", () => {
-      clearTimeout(saveTimeout);
-      saveTimeout = setTimeout(async () => {
-        if (currentUser && note.value.trim()) {
-          const savedNoteId = await saveNoteToBackend(
-            "Note",
-            note.value,
-            noteId
-          );
-          if (savedNoteId && !noteId) {
-            // Update the wrapper with the new ID for future updates
-            noteWrapper.dataset.noteId = savedNoteId;
-            noteId = savedNoteId;
-          }
-        }
-      }, 1000); // Save after 1 second of no typing
-    });
-
-    // Create delete button
-    const deleteBtn = document.createElement("button");
-    deleteBtn.className = "delete-btn";
-    deleteBtn.textContent = "✖";
-    deleteBtn.addEventListener("click", async () => {
-      if (noteId) {
-        await deleteNoteFromBackend(noteId);
-      }
-      noteWrapper.remove();
-    });
-
-    // Append elements to wrapper
-    noteWrapper.appendChild(note);
-    noteWrapper.appendChild(deleteBtn);
-
-    // Add the new note at the beginning of the container
-    notesContainer.insertBefore(noteWrapper, notesContainer.firstChild);
-
-    return { noteWrapper, note };
-  }
-
-  // Helper function to create todo elements
-  function createTodoElement(text = "", completed = false, todoId = null) {
-    const todoListContainer = document.querySelector(".todo-list-container");
-
-    const todoItem = document.createElement("div");
-    todoItem.className = "todo-item";
-    todoItem.dataset.todoId = todoId; // Store backend ID
-
-    const checkbox = document.createElement("input");
-    checkbox.type = "checkbox";
-    checkbox.checked = completed;
-
-    const textSpan = document.createElement("span");
-    textSpan.contentEditable = true;
-    textSpan.textContent = text;
-    textSpan.style.color = text
-      ? document.body.classList.contains("dark-mode")
-        ? "#ffffff"
-        : "#000000"
-      : "#808080";
-    textSpan.style.textDecoration = completed ? "line-through" : "none";
-
-    const deleteBtn = document.createElement("button");
-    deleteBtn.textContent = "✖";
-
-    // Auto-save functionality for todos
-    let todoSaveTimeout;
-    const saveTodo = async () => {
-      if (currentUser && textSpan.textContent.trim()) {
-        const savedTodoId = await saveTodoToBackend(
-          textSpan.textContent.trim(),
-          checkbox.checked,
-          todoId
-        );
-        if (savedTodoId && !todoId) {
-          todoItem.dataset.todoId = savedTodoId;
-          todoId = savedTodoId;
-        }
-      }
-    };
-
-    checkbox.addEventListener("change", () => {
-      textSpan.style.textDecoration = checkbox.checked
-        ? "line-through"
-        : "none";
-      clearTimeout(todoSaveTimeout);
-      todoSaveTimeout = setTimeout(saveTodo, 500);
-    });
-
-    textSpan.addEventListener("input", () => {
-      textSpan.style.color = document.body.classList.contains("dark-mode")
-        ? "#ffffff"
-        : "#000000";
-      clearTimeout(todoSaveTimeout);
-      todoSaveTimeout = setTimeout(saveTodo, 1000);
-    });
-
-    textSpan.addEventListener("blur", () => {
-      if (textSpan.textContent.trim() === "") {
-        textSpan.textContent = "";
-        textSpan.style.color = "#808080";
-      }
-    });
-
-    deleteBtn.onclick = async () => {
-      if (todoId) {
-        await deleteTodoFromBackend(todoId);
-      }
-      todoItem.remove();
-    };
-
-    // Append elements to todoItem in correct order
-    todoItem.appendChild(checkbox);
-    todoItem.appendChild(textSpan);
-    todoItem.appendChild(deleteBtn);
-
-    todoListContainer.appendChild(todoItem);
-
-    if (!text) {
-      textSpan.focus();
-    }
-
-    return { todoItem, textSpan };
-  }
-
-  // Helper function to create timer elements
-  function createTimerElement(title = "", elapsedTime = 0, timerId = null) {
-    const timerContainer = document.querySelector(".timer-container");
-
-    const timerBox = document.createElement("div");
-    timerBox.className = "timer-box";
-    timerBox.dataset.timerId = timerId; // Store backend ID
-
-    const timerTitle = document.createElement("input");
-    timerTitle.className = "timer-title";
-    timerTitle.type = "text";
-    timerTitle.placeholder = "Task Title";
-    timerTitle.value = title;
-    timerTitle.style.color = title
-      ? document.body.classList.contains("dark-mode")
-        ? "#ffffff"
-        : "#000000"
-      : "#808080";
-
-    const timerDisplay = document.createElement("div");
-    timerDisplay.className = "timer-display";
-
-    const timerControls = document.createElement("div");
-    timerControls.className = "timer-controls";
-
-    const startBtn = document.createElement("button");
-    startBtn.textContent = "▶️";
-
-    const pauseBtn = document.createElement("button");
-    pauseBtn.textContent = "⏸️";
-    pauseBtn.style.display = "none";
-
-    const resetBtn = document.createElement("button");
-    resetBtn.textContent = "🔄";
-
-    const deleteBtn = document.createElement("button");
-    deleteBtn.textContent = "⏹️";
-
-    timerControls.appendChild(startBtn);
-    timerControls.appendChild(pauseBtn);
-    timerControls.appendChild(resetBtn);
-    timerControls.appendChild(deleteBtn);
-
-    timerBox.appendChild(timerTitle);
-    timerBox.appendChild(timerDisplay);
-    timerBox.appendChild(timerControls);
-
-    timerContainer.appendChild(timerBox);
-
-    // Independent timer state
-    timerBox._interval = null;
-    timerBox._startTime = null;
-    timerBox._elapsedTime = elapsedTime;
-
-    // Auto-save functionality for timers
-    let timerSaveTimeout;
-    const saveTimer = async () => {
-      if (currentUser && timerTitle.value.trim()) {
-        const savedTimerId = await saveTimerToBackend(
-          timerTitle.value.trim(),
-          timerBox._elapsedTime,
-          timerId
-        );
-        if (savedTimerId && !timerId) {
-          timerBox.dataset.timerId = savedTimerId;
-          timerId = savedTimerId;
-        }
-      }
-    };
-
-    timerTitle.addEventListener("input", () => {
-      timerTitle.style.color = document.body.classList.contains("dark-mode")
-        ? "#ffffff"
-        : "#000000";
-      clearTimeout(timerSaveTimeout);
-      timerSaveTimeout = setTimeout(saveTimer, 1000);
-    });
-
-    timerTitle.addEventListener("blur", () => {
-      if (timerTitle.value.trim() === "") {
-        timerTitle.value = "";
-        timerTitle.style.color = "#808080";
-      }
-    });
-
-    function updateDisplay() {
-      const hours = Math.floor(timerBox._elapsedTime / (1000 * 60 * 60));
-      const minutes = Math.floor(
-        (timerBox._elapsedTime % (1000 * 60 * 60)) / (1000 * 60)
-      );
-      const seconds = Math.floor((timerBox._elapsedTime % (1000 * 60)) / 1000);
-
-      timerDisplay.textContent = `${hours.toString().padStart(2, "0")}:${minutes
-        .toString()
-        .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
-    }
-
-    function startTimer() {
-      timerBox._startTime = Date.now() - (timerBox._elapsedTime || 0);
-      timerBox._interval = setInterval(() => {
-        timerBox._elapsedTime = Date.now() - timerBox._startTime;
-        updateDisplay();
-      }, 1000);
-
-      startBtn.style.display = "none";
-      pauseBtn.style.display = "inline-block";
-    }
-
-    function pauseTimer() {
-      clearInterval(timerBox._interval);
-      timerBox._interval = null;
-
-      startBtn.style.display = "inline-block";
-      pauseBtn.style.display = "none";
-
-      // Auto-save when paused
-      clearTimeout(timerSaveTimeout);
-      timerSaveTimeout = setTimeout(saveTimer, 500);
-    }
-
-    function resetTimer() {
-      clearInterval(timerBox._interval);
-      timerBox._interval = null;
-      timerBox._startTime = null;
-      timerBox._elapsedTime = 0;
-
-      updateDisplay();
-      startBtn.style.display = "inline-block";
-      pauseBtn.style.display = "none";
-
-      // Auto-save when reset
-      clearTimeout(timerSaveTimeout);
-      timerSaveTimeout = setTimeout(saveTimer, 500);
-    }
-
-    startBtn.addEventListener("click", startTimer);
-    pauseBtn.addEventListener("click", pauseTimer);
-    resetBtn.addEventListener("click", resetTimer);
-
-    deleteBtn.onclick = async () => {
-      clearInterval(timerBox._interval);
-      if (timerId) {
-        await deleteTimerFromBackend(timerId);
-      }
-      timerBox.remove();
-    };
-
-    // Initial display update
-    updateDisplay();
-
-    if (!title) {
-      timerTitle.focus();
-    }
-
-    return { timerBox, timerTitle };
-  }
 
   createNoteBtn.addEventListener("click", () => {
     // Check if we've reached the maximum number of notes
