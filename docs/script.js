@@ -1,6 +1,225 @@
 // Google Authentication Functions
 let currentUser = null;
 
+// Backend API Configuration
+const API_BASE_URL = "https://minimalist-notes-backend.onrender.com";
+
+// API Functions for Backend Integration
+async function apiRequest(endpoint, options = {}) {
+  try {
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      headers: {
+        "Content-Type": "application/json",
+        ...options.headers,
+      },
+      ...options,
+    });
+
+    if (!response.ok) {
+      throw new Error(`API request failed: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("API request error:", error);
+    throw error;
+  }
+}
+
+// Load user's notes from backend
+async function loadUserNotes() {
+  if (!currentUser) return;
+
+  try {
+    const notes = await apiRequest(`/api/notes?userId=${currentUser.id}`);
+
+    // Clear existing notes in UI
+    const notesContainer = document.getElementById("notesContainer");
+    notesContainer.innerHTML = "";
+
+    // Display notes from backend
+    notes.forEach((noteData) => {
+      createNoteElement(noteData.title, noteData.content, noteData._id);
+    });
+
+    console.log("Notes loaded successfully");
+  } catch (error) {
+    console.error("Failed to load notes:", error);
+  }
+}
+
+// Save note to backend
+async function saveNoteToBackend(title, content, noteId = null) {
+  if (!currentUser) return null;
+
+  try {
+    if (noteId) {
+      // Update existing note
+      await apiRequest(`/api/notes/${noteId}`, {
+        method: "PUT",
+        body: JSON.stringify({ title, content }),
+      });
+      return noteId;
+    } else {
+      // Create new note
+      const response = await apiRequest("/api/notes", {
+        method: "POST",
+        body: JSON.stringify({
+          title,
+          content,
+          userId: currentUser.id,
+        }),
+      });
+      return response._id;
+    }
+  } catch (error) {
+    console.error("Failed to save note:", error);
+    return null;
+  }
+}
+
+// Delete note from backend
+async function deleteNoteFromBackend(noteId) {
+  if (!currentUser || !noteId) return;
+
+  try {
+    await apiRequest(`/api/notes/${noteId}`, {
+      method: "DELETE",
+    });
+    console.log("Note deleted successfully");
+  } catch (error) {
+    console.error("Failed to delete note:", error);
+  }
+}
+
+// Todo API Functions
+async function loadUserTodos() {
+  if (!currentUser) return;
+
+  try {
+    const todos = await apiRequest(`/api/todos?userId=${currentUser.id}`);
+
+    // Clear existing todos in UI
+    const todoListContainer = document.querySelector(".todo-list-container");
+    todoListContainer.innerHTML = "";
+
+    // Display todos from backend
+    todos.forEach((todoData) => {
+      createTodoElement(todoData.text, todoData.completed, todoData._id);
+    });
+
+    console.log("Todos loaded successfully");
+  } catch (error) {
+    console.error("Failed to load todos:", error);
+  }
+}
+
+async function saveTodoToBackend(text, completed = false, todoId = null) {
+  if (!currentUser) return null;
+
+  try {
+    if (todoId) {
+      // Update existing todo
+      await apiRequest(`/api/todos/${todoId}`, {
+        method: "PUT",
+        body: JSON.stringify({ text, completed }),
+      });
+      return todoId;
+    } else {
+      // Create new todo
+      const response = await apiRequest("/api/todos", {
+        method: "POST",
+        body: JSON.stringify({
+          text,
+          completed,
+          userId: currentUser.id,
+        }),
+      });
+      return response._id;
+    }
+  } catch (error) {
+    console.error("Failed to save todo:", error);
+    return null;
+  }
+}
+
+async function deleteTodoFromBackend(todoId) {
+  if (!currentUser || !todoId) return;
+
+  try {
+    await apiRequest(`/api/todos/${todoId}`, {
+      method: "DELETE",
+    });
+    console.log("Todo deleted successfully");
+  } catch (error) {
+    console.error("Failed to delete todo:", error);
+  }
+}
+
+// Timer API Functions
+async function loadUserTimers() {
+  if (!currentUser) return;
+
+  try {
+    const timers = await apiRequest(`/api/timers?userId=${currentUser.id}`);
+
+    // Clear existing timers in UI
+    const timerContainer = document.querySelector(".timer-container");
+    timerContainer.innerHTML = "";
+
+    // Display timers from backend
+    timers.forEach((timerData) => {
+      createTimerElement(timerData.title, timerData.elapsedTime, timerData._id);
+    });
+
+    console.log("Timers loaded successfully");
+  } catch (error) {
+    console.error("Failed to load timers:", error);
+  }
+}
+
+async function saveTimerToBackend(title, elapsedTime, timerId = null) {
+  if (!currentUser) return null;
+
+  try {
+    if (timerId) {
+      // Update existing timer
+      await apiRequest(`/api/timers/${timerId}`, {
+        method: "PUT",
+        body: JSON.stringify({ title, elapsedTime }),
+      });
+      return timerId;
+    } else {
+      // Create new timer
+      const response = await apiRequest("/api/timers", {
+        method: "POST",
+        body: JSON.stringify({
+          title,
+          elapsedTime,
+          userId: currentUser.id,
+        }),
+      });
+      return response._id;
+    }
+  } catch (error) {
+    console.error("Failed to save timer:", error);
+    return null;
+  }
+}
+
+async function deleteTimerFromBackend(timerId) {
+  if (!currentUser || !timerId) return;
+
+  try {
+    await apiRequest(`/api/timers/${timerId}`, {
+      method: "DELETE",
+    });
+    console.log("Timer deleted successfully");
+  } catch (error) {
+    console.error("Failed to delete timer:", error);
+  }
+}
+
 // This function handles the response from Google
 function handleCredentialResponse(response) {
   // Decode the JWT token to get user info
@@ -17,6 +236,11 @@ function handleCredentialResponse(response) {
 
   // Update the UI to show the user is signed in
   updateSignInUI();
+
+  // Load user's data from backend
+  loadUserNotes();
+  loadUserTodos();
+  loadUserTimers();
 
   // Show welcome message
   alert(`Welcome, ${currentUser.name}!`);
@@ -86,6 +310,23 @@ function updateSignInUI() {
 // Sign out function
 function signOut() {
   currentUser = null;
+
+  // Clear all user data when signing out
+  const notesContainer = document.getElementById("notesContainer");
+  if (notesContainer) {
+    notesContainer.innerHTML = "";
+  }
+
+  const todoListContainer = document.querySelector(".todo-list-container");
+  if (todoListContainer) {
+    todoListContainer.innerHTML = "";
+  }
+
+  const timerContainer = document.querySelector(".timer-container");
+  if (timerContainer) {
+    timerContainer.innerHTML = "";
+  }
+
   if (window.google) {
     google.accounts.id.disableAutoSelect();
   }
@@ -191,30 +432,51 @@ document.addEventListener("DOMContentLoaded", () => {
     "Semper Scribe",
   ];
 
-  createNoteBtn.addEventListener("click", () => {
-    // Check if we've reached the maximum number of notes
-    if (notesContainer.children.length >= MAX_NOTES) {
-      return;
-    }
-
+  // Helper function to create note elements (used for both new notes and loaded notes)
+  function createNoteElement(title = "", content = "", noteId = null) {
     // Create note wrapper
     const noteWrapper = document.createElement("div");
     noteWrapper.className = "note-wrapper";
+    noteWrapper.dataset.noteId = noteId; // Store backend ID
 
     // Create new note
     const note = document.createElement("textarea");
     note.className = "note";
+    note.value = content;
 
     // Get the current number of notes (before adding the new one)
     const currentNoteCount = notesContainer.children.length;
     // Set the placeholder text based on the position
-    note.placeholder = placeholderTexts[currentNoteCount];
+    note.placeholder = placeholderTexts[currentNoteCount] || "Note";
 
-    // Create delete button from scratch
+    // Auto-save functionality
+    let saveTimeout;
+    note.addEventListener("input", () => {
+      clearTimeout(saveTimeout);
+      saveTimeout = setTimeout(async () => {
+        if (currentUser && note.value.trim()) {
+          const savedNoteId = await saveNoteToBackend(
+            "Note",
+            note.value,
+            noteId
+          );
+          if (savedNoteId && !noteId) {
+            // Update the wrapper with the new ID for future updates
+            noteWrapper.dataset.noteId = savedNoteId;
+            noteId = savedNoteId;
+          }
+        }
+      }, 1000); // Save after 1 second of no typing
+    });
+
+    // Create delete button
     const deleteBtn = document.createElement("button");
     deleteBtn.className = "delete-btn";
     deleteBtn.textContent = "✖";
-    deleteBtn.addEventListener("click", () => {
+    deleteBtn.addEventListener("click", async () => {
+      if (noteId) {
+        await deleteNoteFromBackend(noteId);
+      }
       noteWrapper.remove();
     });
 
@@ -225,40 +487,79 @@ document.addEventListener("DOMContentLoaded", () => {
     // Add the new note at the beginning of the container
     notesContainer.insertBefore(noteWrapper, notesContainer.firstChild);
 
-    // Focus the new note
-    note.focus();
-  });
+    return { noteWrapper, note };
+  }
 
-  // Todo List Functionality
-  const todoHeading = document.querySelector(".todo-heading");
-  const todoListContainer = document.querySelector(".todo-list-container");
-  const MAX_TODOS = 30;
-
-  todoHeading.addEventListener("click", () => {
-    // Check the maximum number of todos
-    if (todoListContainer.children.length >= MAX_TODOS) {
-      return;
-    }
+  // Helper function to create todo elements
+  function createTodoElement(text = "", completed = false, todoId = null) {
+    const todoListContainer = document.querySelector(".todo-list-container");
 
     const todoItem = document.createElement("div");
     todoItem.className = "todo-item";
+    todoItem.dataset.todoId = todoId; // Store backend ID
 
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
+    checkbox.checked = completed;
+
+    const textSpan = document.createElement("span");
+    textSpan.contentEditable = true;
+    textSpan.textContent = text;
+    textSpan.style.color = text
+      ? document.body.classList.contains("dark-mode")
+        ? "#ffffff"
+        : "#000000"
+      : "#808080";
+    textSpan.style.textDecoration = completed ? "line-through" : "none";
+
+    const deleteBtn = document.createElement("button");
+    deleteBtn.textContent = "✖";
+
+    // Auto-save functionality for todos
+    let todoSaveTimeout;
+    const saveTodo = async () => {
+      if (currentUser && textSpan.textContent.trim()) {
+        const savedTodoId = await saveTodoToBackend(
+          textSpan.textContent.trim(),
+          checkbox.checked,
+          todoId
+        );
+        if (savedTodoId && !todoId) {
+          todoItem.dataset.todoId = savedTodoId;
+          todoId = savedTodoId;
+        }
+      }
+    };
+
     checkbox.addEventListener("change", () => {
       textSpan.style.textDecoration = checkbox.checked
         ? "line-through"
         : "none";
+      clearTimeout(todoSaveTimeout);
+      todoSaveTimeout = setTimeout(saveTodo, 500);
     });
 
-    const textSpan = document.createElement("span");
-    textSpan.contentEditable = true;
-    textSpan.textContent = "";
-    textSpan.style.color = "#808080";
+    textSpan.addEventListener("input", () => {
+      textSpan.style.color = document.body.classList.contains("dark-mode")
+        ? "#ffffff"
+        : "#000000";
+      clearTimeout(todoSaveTimeout);
+      todoSaveTimeout = setTimeout(saveTodo, 1000);
+    });
 
-    const deleteBtn = document.createElement("button");
-    deleteBtn.textContent = "✖";
-    deleteBtn.onclick = () => todoItem.remove();
+    textSpan.addEventListener("blur", () => {
+      if (textSpan.textContent.trim() === "") {
+        textSpan.textContent = "";
+        textSpan.style.color = "#808080";
+      }
+    });
+
+    deleteBtn.onclick = async () => {
+      if (todoId) {
+        await deleteTodoFromBackend(todoId);
+      }
+      todoItem.remove();
+    };
 
     // Append elements to todoItem in correct order
     todoItem.appendChild(checkbox);
@@ -266,47 +567,35 @@ document.addEventListener("DOMContentLoaded", () => {
     todoItem.appendChild(deleteBtn);
 
     todoListContainer.appendChild(todoItem);
-    textSpan.focus();
 
-    // Add event listener to remove placeholder as soon as user types
-    textSpan.addEventListener("input", () => {
-      textSpan.style.color = document.body.classList.contains("dark-mode")
-        ? "#ffffff"
-        : "#000000";
-    });
-
-    // Reset color to grey if text is empty
-    textSpan.addEventListener("blur", () => {
-      if (textSpan.textContent.trim() === "") {
-        textSpan.textContent = "";
-        textSpan.style.color = "#808080";
-      }
-    });
-  });
-
-  // Timer Functionality
-  const stopwatchHeading = document.querySelector(".stopwatch-heading");
-  const timerContainer = document.querySelector(".timer-container");
-  const MAX_TIMERS = 30;
-
-  stopwatchHeading.addEventListener("click", () => {
-    if (timerContainer.children.length >= MAX_TIMERS) {
-      return;
+    if (!text) {
+      textSpan.focus();
     }
+
+    return { todoItem, textSpan };
+  }
+
+  // Helper function to create timer elements
+  function createTimerElement(title = "", elapsedTime = 0, timerId = null) {
+    const timerContainer = document.querySelector(".timer-container");
 
     const timerBox = document.createElement("div");
     timerBox.className = "timer-box";
+    timerBox.dataset.timerId = timerId; // Store backend ID
 
     const timerTitle = document.createElement("input");
     timerTitle.className = "timer-title";
     timerTitle.type = "text";
     timerTitle.placeholder = "Task Title";
-    timerTitle.value = "";
-    timerTitle.style.color = "#808080";
+    timerTitle.value = title;
+    timerTitle.style.color = title
+      ? document.body.classList.contains("dark-mode")
+        ? "#ffffff"
+        : "#000000"
+      : "#808080";
 
     const timerDisplay = document.createElement("div");
     timerDisplay.className = "timer-display";
-    timerDisplay.textContent = "00:00:00";
 
     const timerControls = document.createElement("div");
     timerControls.className = "timer-controls";
@@ -323,10 +612,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const deleteBtn = document.createElement("button");
     deleteBtn.textContent = "⏹️";
-    deleteBtn.onclick = () => {
-      clearInterval(timerBox._interval);
-      timerBox.remove();
-    };
 
     timerControls.appendChild(startBtn);
     timerControls.appendChild(pauseBtn);
@@ -342,7 +627,38 @@ document.addEventListener("DOMContentLoaded", () => {
     // Independent timer state
     timerBox._interval = null;
     timerBox._startTime = null;
-    timerBox._elapsedTime = 0;
+    timerBox._elapsedTime = elapsedTime;
+
+    // Auto-save functionality for timers
+    let timerSaveTimeout;
+    const saveTimer = async () => {
+      if (currentUser && timerTitle.value.trim()) {
+        const savedTimerId = await saveTimerToBackend(
+          timerTitle.value.trim(),
+          timerBox._elapsedTime,
+          timerId
+        );
+        if (savedTimerId && !timerId) {
+          timerBox.dataset.timerId = savedTimerId;
+          timerId = savedTimerId;
+        }
+      }
+    };
+
+    timerTitle.addEventListener("input", () => {
+      timerTitle.style.color = document.body.classList.contains("dark-mode")
+        ? "#ffffff"
+        : "#000000";
+      clearTimeout(timerSaveTimeout);
+      timerSaveTimeout = setTimeout(saveTimer, 1000);
+    });
+
+    timerTitle.addEventListener("blur", () => {
+      if (timerTitle.value.trim() === "") {
+        timerTitle.value = "";
+        timerTitle.style.color = "#808080";
+      }
+    });
 
     function updateDisplay() {
       const hours = Math.floor(timerBox._elapsedTime / (1000 * 60 * 60));
@@ -350,62 +666,112 @@ document.addEventListener("DOMContentLoaded", () => {
         (timerBox._elapsedTime % (1000 * 60 * 60)) / (1000 * 60)
       );
       const seconds = Math.floor((timerBox._elapsedTime % (1000 * 60)) / 1000);
+
       timerDisplay.textContent = `${hours.toString().padStart(2, "0")}:${minutes
         .toString()
         .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
     }
 
     function startTimer() {
-      if (!timerBox._interval) {
-        timerBox._startTime = Date.now() - timerBox._elapsedTime;
-        timerBox._interval = setInterval(() => {
-          timerBox._elapsedTime = Date.now() - timerBox._startTime;
-          updateDisplay();
-        }, 10);
-        startBtn.style.display = "none";
-        pauseBtn.style.display = "block";
-      }
+      timerBox._startTime = Date.now() - (timerBox._elapsedTime || 0);
+      timerBox._interval = setInterval(() => {
+        timerBox._elapsedTime = Date.now() - timerBox._startTime;
+        updateDisplay();
+      }, 1000);
+
+      startBtn.style.display = "none";
+      pauseBtn.style.display = "inline-block";
     }
 
     function pauseTimer() {
-      if (timerBox._interval) {
-        clearInterval(timerBox._interval);
-        timerBox._interval = null;
-        startBtn.style.display = "block";
-        pauseBtn.style.display = "none";
-      }
+      clearInterval(timerBox._interval);
+      timerBox._interval = null;
+
+      startBtn.style.display = "inline-block";
+      pauseBtn.style.display = "none";
+
+      // Auto-save when paused
+      clearTimeout(timerSaveTimeout);
+      timerSaveTimeout = setTimeout(saveTimer, 500);
     }
 
     function resetTimer() {
-      if (timerBox._interval) {
-        clearInterval(timerBox._interval);
-        timerBox._interval = null;
-      }
+      clearInterval(timerBox._interval);
+      timerBox._interval = null;
       timerBox._startTime = null;
       timerBox._elapsedTime = 0;
-      timerDisplay.textContent = "00:00:00";
-      startBtn.style.display = "block";
+
+      updateDisplay();
+      startBtn.style.display = "inline-block";
       pauseBtn.style.display = "none";
+
+      // Auto-save when reset
+      clearTimeout(timerSaveTimeout);
+      timerSaveTimeout = setTimeout(saveTimer, 500);
     }
 
-    startBtn.onclick = startTimer;
-    pauseBtn.onclick = pauseTimer;
-    resetBtn.onclick = resetTimer;
+    startBtn.addEventListener("click", startTimer);
+    pauseBtn.addEventListener("click", pauseTimer);
+    resetBtn.addEventListener("click", resetTimer);
 
-    // Add event listener to remove placeholder as soon as user types
-    timerTitle.addEventListener("input", () => {
-      timerTitle.style.color = document.body.classList.contains("dark-mode")
-        ? "#ffffff"
-        : "#000000";
-    });
-
-    // Reset color to grey if text is empty
-    timerTitle.addEventListener("blur", () => {
-      if (timerTitle.value.trim() === "") {
-        timerTitle.value = "";
-        timerTitle.style.color = "#808080";
+    deleteBtn.onclick = async () => {
+      clearInterval(timerBox._interval);
+      if (timerId) {
+        await deleteTimerFromBackend(timerId);
       }
-    });
+      timerBox.remove();
+    };
+
+    // Initial display update
+    updateDisplay();
+
+    if (!title) {
+      timerTitle.focus();
+    }
+
+    return { timerBox, timerTitle };
+  }
+
+  createNoteBtn.addEventListener("click", () => {
+    // Check if we've reached the maximum number of notes
+    if (notesContainer.children.length >= MAX_NOTES) {
+      return;
+    }
+
+    // Create new note using our backend-integrated function
+    const { note } = createNoteElement();
+
+    // Focus the new note
+    note.focus();
+  });
+
+  // Todo List Functionality
+  const todoHeading = document.querySelector(".todo-heading");
+  const todoListContainer = document.querySelector(".todo-list-container");
+  const MAX_TODOS = 30;
+
+  todoHeading.addEventListener("click", () => {
+    // Check the maximum number of todos
+    if (todoListContainer.children.length >= MAX_TODOS) {
+      return;
+    }
+
+    // Create new todo using our backend-integrated function
+    createTodoElement();
+  });
+
+  // Timer Functionality
+  const stopwatchHeading = document.querySelector(".stopwatch-heading");
+  const timerContainer = document.querySelector(".timer-container");
+  const MAX_TIMERS = 30;
+
+  stopwatchHeading.addEventListener("click", () => {
+    if (timerContainer.children.length >= MAX_TIMERS) {
+      return;
+    }
+
+    // Create new timer using our backend-integrated function
+    createTimerElement();
   });
 
   // Weather Functionality
