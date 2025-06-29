@@ -111,6 +111,9 @@ Due to Google OAuth restrictions, login may not work on localhost or unregistere
 - **Frontend**: Deployed on GitHub Pages at [https://ellewest.github.io/MinimalistNotesProject/](https://ellewest.github.io/MinimalistNotesProject/)
 - **Backend**: Deployed on Render at [https://minimalist-notes-backend.onrender.com](https://minimalist-notes-backend.onrender.com)
 
+Note: The backend is hosted on Render’s free tier, which may cause a delay of up to 60 seconds when loading the app for the first time after a period of inactivity. 
+Please wait a moment if the app seems slow initially.
+
 ## 🛠️ Technology Stack
 
 **Backend:**
@@ -332,7 +335,7 @@ This project integrates with several external services:
 
 **APIs Requiring Keys:**
 
-- **API Ninjas**: Primary quote service (requires free account at [api.api-ninjas.com](https://api.api-ninjas.com))
+- **API Ninjas**: Primary quote service (requires free account at [api-ninjas.com](https://api-ninjas.com/))
   - 10,000 free requests per day
   - CORS-friendly for browser usage
 
