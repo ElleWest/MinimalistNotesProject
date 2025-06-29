@@ -1,0 +1,28 @@
+{
+  "name": "latest_github",
+  "version": "1.0.0",
+  "description": "This project is built for IU's \"Project: Java and Web Development (DLBCSPJWD01)\" course. It's a simple web application that allows users to keep track of notes and time tasks.",
+  "main": "script.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ElleWest/MinimalistNotesProject.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ElleWest/MinimalistNotesProject/issues"
+  },
+  "homepage": "https://github.com/ElleWest/MinimalistNotesProject#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^17.0.0",
+    "express": "^5.1.0",
+    "express-rate-limit": "^7.5.1",
+    "helmet": "^8.1.0",
+    "mongoose": "^8.16.1"
+  }
+}
