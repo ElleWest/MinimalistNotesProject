@@ -4,8 +4,6 @@ let currentUser = null;
 // Backend API Configuration
 const API_BASE_URL = "https://minimalist-notes-backend.onrender.com";
 
-console.log("🚀 Script starting to load...");
-
 // API Functions for Backend Integration
 async function apiRequest(endpoint, options = {}) {
   try {
@@ -27,8 +25,6 @@ async function apiRequest(endpoint, options = {}) {
     throw error;
   }
 }
-
-console.log("✅ API functions loaded");
 
 // Load user's notes from backend
 async function loadUserNotes() {
