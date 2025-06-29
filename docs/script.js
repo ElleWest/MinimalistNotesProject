@@ -1175,76 +1175,87 @@ document.addEventListener("DOMContentLoaded", () => {
     let attempts = 0;
     const maxAttempts = 5; // Try up to 5 times to get a non-religious quote
 
+    // Primary API - API Ninjas (CORS-friendly, reliable)
     while (attempts < maxAttempts) {
       try {
-        // Use ZenQuotes API - real quote API, completely free, no signup required
-        const response = await fetch("https://zenquotes.io/api/random");
+        console.log("🥇 Trying API Ninjas...");
+        const response = await fetch("https://api.api-ninjas.com/v1/quotes", {
+          headers: {
+            "X-Api-Key": "GXdPnIpfRKklijz1mQjfgQ==3nh9RkJNYIAMXmg3",
+          },
+        });
 
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
 
         const data = await response.json();
-        console.log("ZenQuotes API Response:", data); // Debug log
+        console.log("✅ API Ninjas Response:", data);
 
         if (data && data.length > 0) {
           const quoteData = {
-            quote: data[0].q,
-            author: data[0].a,
+            quote: data[0].quote,
+            author: data[0].author,
           };
 
           // Check if quote is religious
           if (!isReligiousQuote(quoteData.quote, quoteData.author)) {
+            console.log("🎯 Found good quote from API Ninjas!");
             return quoteData;
           } else {
-            console.log("Filtered out religious quote, trying again...");
+            console.log("⚠️ Filtered out religious quote, trying again...");
             attempts++;
             continue;
           }
         } else {
-          throw new Error("No quote data received");
+          throw new Error("No quote data received from API Ninjas");
         }
       } catch (error) {
-        console.error("ZenQuotes failed, trying backup:", error);
+        console.error("❌ API Ninjas failed:", error);
         break; // Exit loop and try backup API
       }
     }
 
-    // Backup API - Quotable (real quote API)
+    // Backup API - DummyJSON (CORS-friendly, no key needed)
     attempts = 0;
     while (attempts < maxAttempts) {
       try {
-        const backupResponse = await fetch("https://api.quotable.io/random");
+        console.log("🥈 Trying DummyJSON backup...");
+        const backupResponse = await fetch(
+          "https://dummyjson.com/quotes/random"
+        );
+
         if (!backupResponse.ok) {
           throw new Error(`Backup API error! status: ${backupResponse.status}`);
         }
 
         const backupData = await backupResponse.json();
-        console.log("Quotable API Response:", backupData); // Debug log
+        console.log("✅ DummyJSON Response:", backupData);
 
         const quoteData = {
-          quote: backupData.content,
+          quote: backupData.quote,
           author: backupData.author,
         };
 
         // Check if quote is religious
         if (!isReligiousQuote(quoteData.quote, quoteData.author)) {
+          console.log("🎯 Found good quote from DummyJSON!");
           return quoteData;
         } else {
           console.log(
-            "Filtered out religious quote from backup, trying again..."
+            "⚠️ Filtered out religious quote from backup, trying again..."
           );
           attempts++;
           continue;
         }
       } catch (backupError) {
-        console.error("Backup API failed:", backupError);
+        console.error("❌ DummyJSON backup failed:", backupError);
         break; // Exit loop and use fallback quotes
       }
     }
 
-    console.error(
-      "All APIs failed or couldn't find non-religious quotes, using fallback"
+    console.warn(
+      "⚠️ All APIs failed or couldn't find non-religious quotes, using fallback"
     );
 
     // Local fallback quotes (non-religious) - only as last resort
