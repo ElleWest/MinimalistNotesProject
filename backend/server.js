@@ -5,6 +5,7 @@ const cors = require("cors");
 const helmet = require("helmet");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const { OAuth2Client } = require("google-auth-library");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -25,18 +26,21 @@ app.use(
 app.use(express.json());
 
 // Create MongoDB client
-const client = new MongoClient(uri, {
+const mongoClient = new MongoClient(uri, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
+
+// Create Google OAuth client
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 let db;
 
 // Connect to MongoDB
 async function connectDB() {
   try {
-    await client.connect();
-    db = client.db("minimalist-notes");
+    await mongoClient.connect();
+    db = mongoClient.db("minimalist-notes");
     console.log("✅ Successfully connected to MongoDB!");
   } catch (err) {
     console.error("❌ MongoDB connection error:", err);
@@ -711,8 +715,8 @@ app.use((error, req, res, next) => {
 // Graceful shutdown
 process.on("SIGINT", async () => {
   console.log("Shutting down gracefully...");
-  if (client) {
-    await client.close();
+  if (mongoClient) {
+    await mongoClient.close();
   }
   process.exit(0);
 });
