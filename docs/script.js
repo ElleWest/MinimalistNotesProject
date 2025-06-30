@@ -919,88 +919,112 @@ function closeSignInModal() {
   }
 }
 
-// Handle Google sign-in with comprehensive fallback system
+// Simplified and more reliable Google sign-in
 async function handleGoogleSignIn() {
   console.log("🔐 Google sign-in selected");
   console.log("📱 User agent:", navigator.userAgent);
   console.log("📺 Screen size:", window.innerWidth + "x" + window.innerHeight);
 
-  // Always show initial notification
-  showGreyNotification("Attempting Google sign-in...");
+  // Prevent multiple simultaneous sign-in attempts
+  if (window.googleSignInInProgress) {
+    console.log("⚠️ Google sign-in already in progress, ignoring");
+    return;
+  }
 
-  if (!window.google) {
-    console.error("❌ Google Auth library not loaded");
-    showGreyNotification("Google library loading... Using redirect method");
+  window.googleSignInInProgress = true;
+
+  // Reset flag after timeout
+  setTimeout(() => {
+    window.googleSignInInProgress = false;
+  }, 10000);
+
+  // Always show initial notification
+  showGreyNotification("Starting Google sign-in...");
+
+  // Simplified approach: Try One Tap briefly, then redirect
+  if (!window.google || !window.google.accounts) {
+    console.log("❌ Google Auth library not loaded - using redirect");
     setTimeout(() => tryRedirectSignIn(), 1000);
     return;
   }
 
-  // For mobile devices, use redirect immediately (most reliable)
-  if (window.innerWidth <= 768) {
-    console.log("📱 Mobile detected - using redirect method directly");
+  // Check if we're on a mobile device (more reliable detection)
+  const isMobile =
+    /Android|iPhone|iPad|iPod|BlackBerry|Windows Phone/i.test(
+      navigator.userAgent
+    ) || window.innerWidth <= 768;
+
+  if (isMobile) {
+    console.log("📱 Mobile device detected - using redirect directly");
     showGreyNotification("Mobile sign-in: Redirecting to Google...");
     setTimeout(() => tryRedirectSignIn(), 1500);
     return;
   }
 
-  // For desktop, try a quick One Tap with immediate fallback
-  console.log("🖥️ Desktop detected - trying One Tap with fallback");
+  // For desktop: Try One Tap with very short timeout
+  console.log("🖥️ Desktop detected - trying One Tap briefly");
 
-  let signInCompleted = false;
+  let oneTagCompleted = false;
 
-  // Set up immediate fallback to redirect (2 seconds max)
-  const fallbackTimer = setTimeout(() => {
-    if (!signInCompleted) {
-      console.log("⏰ One Tap timeout - switching to redirect");
-      signInCompleted = true;
-      showGreyNotification("Switching to redirect sign-in...");
+  // Very short timeout for One Tap (1 second)
+  const quickTimeout = setTimeout(() => {
+    if (!oneTagCompleted) {
+      console.log("⏰ One Tap timeout - using redirect");
+      oneTagCompleted = true;
+      showGreyNotification("Switching to redirect...");
       setTimeout(() => tryRedirectSignIn(), 500);
     }
-  }, 2000);
+  }, 1000);
 
   try {
-    // Try One Tap but with very strict error handling
     google.accounts.id.prompt((notification) => {
-      console.log("📋 One Tap response:", notification);
+      if (oneTagCompleted) return;
 
-      if (signInCompleted) {
-        return; // Already handled by timeout
-      }
+      oneTagCompleted = true;
+      clearTimeout(quickTimeout);
 
-      signInCompleted = true;
-      clearTimeout(fallbackTimer);
+      console.log("📋 One Tap result:", notification.getMomentType());
 
+      // If One Tap is displayed, let it handle the sign-in
       if (notification.isDisplayed && notification.isDisplayed()) {
-        console.log("✅ One Tap displayed successfully");
-        // Let One Tap handle the sign-in
+        console.log("✅ One Tap displayed - proceeding with One Tap");
         return;
       }
 
-      // Any other case, use redirect
+      // Otherwise, use redirect
       console.log("⚠️ One Tap not displayed - using redirect");
-      showGreyNotification("Redirecting to Google...");
       setTimeout(() => tryRedirectSignIn(), 500);
     });
   } catch (error) {
-    console.error("❌ One Tap completely failed:", error);
-    if (!signInCompleted) {
-      signInCompleted = true;
-      clearTimeout(fallbackTimer);
-      showGreyNotification("Using redirect sign-in...");
+    console.error("❌ One Tap failed:", error);
+    if (!oneTagCompleted) {
+      oneTagCompleted = true;
+      clearTimeout(quickTimeout);
       setTimeout(() => tryRedirectSignIn(), 500);
     }
   }
 }
 
-// Simplified and more reliable redirect sign-in
+// Simplified redirect with better error handling
 function tryRedirectSignIn() {
+  // Prevent multiple redirects
+  if (window.redirectInProgress) {
+    console.log("⚠️ Redirect already in progress");
+    return;
+  }
+
+  window.redirectInProgress = true;
+  window.googleSignInInProgress = false; // Reset the Google sign-in flag
+
   console.log("🔄 Starting redirect sign-in...");
 
   const clientId =
     "1038950117037-i0buqo6336f193107jlqbuk4egkn85pn.apps.googleusercontent.com";
-  const redirectUri = encodeURIComponent(
-    "https://ellewest.github.io/MinimalistNotesProject/"
-  );
+
+  // Try different redirect URI formats to fix the mismatch
+  const baseUrl = "https://ellewest.github.io/MinimalistNotesProject";
+  const redirectUri = encodeURIComponent(baseUrl + "/"); // Ensure trailing slash
+
   const scope = "openid profile email";
   const responseType = "id_token";
   const state = Math.random().toString(36).substring(2, 15);
@@ -1022,129 +1046,16 @@ function tryRedirectSignIn() {
     `prompt=select_account`;
 
   console.log("🌐 Redirect URL:", authUrl);
-  console.log("🔑 State for verification:", state);
+  console.log("🔗 Redirect URI:", decodeURIComponent(redirectUri));
+  console.log("🔑 State:", state);
 
-  // Show final notification before redirect
   showGreyNotification("Redirecting to Google...");
 
-  // Small delay to show notification, then redirect
+  // Redirect after short delay
   setTimeout(() => {
-    console.log("🚀 Executing redirect...");
+    console.log("🚀 Executing redirect now...");
     window.location.href = authUrl;
   }, 800);
-}
-
-// Enhanced OAuth redirect handler with better error handling
-function handleOAuthRedirect() {
-  console.log("🔍 Checking for OAuth redirect...");
-
-  // Check both URL fragment and query parameters
-  const hashParams = new URLSearchParams(window.location.hash.substring(1));
-  const queryParams = new URLSearchParams(window.location.search);
-
-  // Combine both parameter sources
-  const allParams = new URLSearchParams();
-  hashParams.forEach((value, key) => allParams.set(key, value));
-  queryParams.forEach((value, key) => allParams.set(key, value));
-
-  const idToken = allParams.get("id_token");
-  const state = allParams.get("state");
-  const error = allParams.get("error");
-  const errorDescription = allParams.get("error_description");
-
-  // Check if this looks like an OAuth response
-  const hasOAuthParams =
-    idToken ||
-    state ||
-    error ||
-    allParams.get("access_token") ||
-    allParams.get("token_type");
-
-  if (!hasOAuthParams) {
-    console.log("ℹ️ No OAuth parameters detected - normal page load");
-    return;
-  }
-
-  console.log("🎯 OAuth redirect detected!");
-  console.log("🆔 ID Token present:", !!idToken);
-  console.log("🔑 State:", state);
-  console.log("❌ Error:", error);
-  console.log("📝 Error description:", errorDescription);
-
-  // Handle errors first
-  if (error) {
-    console.error("❌ OAuth error:", error, errorDescription);
-    const errorMsg = errorDescription || error;
-    showNotification(`Google sign-in failed: ${errorMsg}`, "error");
-    cleanUpOAuthAndRedirect();
-    return;
-  }
-
-  // Handle successful ID token response
-  if (idToken) {
-    const storedState = sessionStorage.getItem("oauth_state");
-    const timestamp = sessionStorage.getItem("oauth_timestamp");
-
-    console.log("🔍 Verifying OAuth response...");
-    console.log("🔑 Stored state:", storedState);
-    console.log("🔑 Received state:", state);
-    console.log("⏰ Request timestamp:", timestamp);
-
-    // Verify state parameter
-    if (state && state !== storedState) {
-      console.error("❌ OAuth state mismatch - possible security issue");
-      showNotification(
-        "Security verification failed. Please try again.",
-        "error"
-      );
-      cleanUpOAuthAndRedirect();
-      return;
-    }
-
-    // Check if request is too old (over 10 minutes)
-    if (timestamp && Date.now() - parseInt(timestamp) > 600000) {
-      console.error("❌ OAuth request too old");
-      showNotification("Sign-in request expired. Please try again.", "error");
-      cleanUpOAuthAndRedirect();
-      return;
-    }
-
-    console.log("✅ OAuth verification successful!");
-    showGreyNotification("Processing Google sign-in...");
-
-    // Process the ID token using existing handler
-    try {
-      handleCredentialResponse({ credential: idToken });
-    } catch (error) {
-      console.error("❌ Error processing ID token:", error);
-      showNotification("Failed to process sign-in. Please try again.", "error");
-    }
-
-    // Clean up after processing
-    cleanUpOAuthAndRedirect();
-    return;
-  }
-
-  // If we get here, we have OAuth params but no token or error
-  console.error("❌ Incomplete OAuth response");
-  showNotification("Sign-in incomplete. Please try again.", "error");
-  cleanUpOAuthAndRedirect();
-}
-
-// Helper function to clean up OAuth data and URL
-function cleanUpOAuthAndRedirect() {
-  console.log("🧹 Cleaning up OAuth session data...");
-
-  // Remove OAuth data from session storage
-  sessionStorage.removeItem("oauth_state");
-  sessionStorage.removeItem("oauth_nonce");
-  sessionStorage.removeItem("oauth_timestamp");
-
-  // Clean the URL
-  const cleanUrl = window.location.origin + window.location.pathname;
-  window.history.replaceState({}, document.title, cleanUrl);
-
-  console.log("✅ OAuth cleanup complete");
 }
 
 // Handle manual sign-in with auto-registration
@@ -1442,6 +1353,91 @@ async function checkExistingSession() {
   console.log("ℹ️ No valid session found");
 }
 
+// Simplified OAuth redirect handler
+function handleOAuthRedirect() {
+  console.log("🔍 Checking for OAuth redirect...");
+
+  // Check both URL fragment and query parameters
+  const hashParams = new URLSearchParams(window.location.hash.substring(1));
+  const queryParams = new URLSearchParams(window.location.search);
+
+  // Get parameters from both sources
+  const idToken = hashParams.get("id_token") || queryParams.get("id_token");
+  const state = hashParams.get("state") || queryParams.get("state");
+  const error = hashParams.get("error") || queryParams.get("error");
+
+  // Check if this looks like an OAuth response
+  if (!idToken && !state && !error) {
+    console.log("ℹ️ No OAuth parameters - normal page load");
+    return;
+  }
+
+  console.log("🎯 OAuth redirect detected!");
+  console.log("🆔 ID Token present:", !!idToken);
+  console.log("🔑 State:", state);
+  console.log("❌ Error:", error);
+
+  // Reset redirect flag
+  window.redirectInProgress = false;
+
+  if (error) {
+    console.error("❌ OAuth error:", error);
+    showNotification(`Google sign-in failed: ${error}`, "error");
+    cleanUpOAuth();
+    return;
+  }
+
+  if (idToken) {
+    const storedState = sessionStorage.getItem("oauth_state");
+
+    console.log("🔍 Verifying state...");
+    console.log("🔑 Stored:", storedState, "Received:", state);
+
+    if (state && state !== storedState) {
+      console.error("❌ State mismatch");
+      showNotification(
+        "Security verification failed. Please try again.",
+        "error"
+      );
+      cleanUpOAuth();
+      return;
+    }
+
+    console.log("✅ OAuth successful - processing token");
+    showGreyNotification("Processing sign-in...");
+
+    // Process the ID token
+    try {
+      handleCredentialResponse({ credential: idToken });
+    } catch (error) {
+      console.error("❌ Token processing failed:", error);
+      showNotification("Sign-in processing failed. Please try again.", "error");
+    }
+
+    cleanUpOAuth();
+    return;
+  }
+
+  console.error("❌ Incomplete OAuth response");
+  showNotification("Sign-in incomplete. Please try again.", "error");
+  cleanUpOAuth();
+}
+
+// Simple cleanup function
+function cleanUpOAuth() {
+  console.log("🧹 Cleaning up OAuth data...");
+
+  sessionStorage.removeItem("oauth_state");
+  sessionStorage.removeItem("oauth_nonce");
+  sessionStorage.removeItem("oauth_timestamp");
+
+  // Clean URL
+  const cleanUrl = window.location.origin + window.location.pathname;
+  window.history.replaceState({}, document.title, cleanUrl);
+
+  console.log("✅ Cleanup complete");
+}
+
 // Initialize Google Auth when page loads
 function initializeGoogleAuth() {
   console.log("🚀 Initializing Google Auth...");
@@ -1459,7 +1455,7 @@ function initializeGoogleAuth() {
         callback: handleCredentialResponse,
         auto_select: false,
         cancel_on_tap_outside: false,
-        use_fedcm_for_prompt: false, // Disable FedCM to avoid the errors we're seeing
+        use_fedcm_for_prompt: false, // Disable FedCM to avoid errors
       });
 
       // Initialize the sign-in button
