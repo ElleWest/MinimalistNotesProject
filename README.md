@@ -26,7 +26,7 @@ MinimalistNotesProject/
 - **📝 Note Management**: Create, edit, and delete notes with real-time auto-save
 - **✅ Todo Management**: Add, complete, and delete todos with persistent storage
 - **⏱️ Timer System**: Multiple named timers with start/pause/reset functionality
-- **🔐 Google Authentication**: Secure user login with personalized data isolation
+- **🔐 Authentication**: Google Sign-In and manual email/password registration with personalized data isolation
 - **💬 Daily Quotes**: Inspirational quotes with religious content filtering
 - **🌤️ Weather Integration**: Real-time weather updates for your location
 - **📊 Dashboard**: Live date, time, and day progress tracking
@@ -111,7 +111,7 @@ Due to Google OAuth restrictions, login may not work on localhost or unregistere
 - **Frontend**: Deployed on GitHub Pages at [https://ellewest.github.io/MinimalistNotesProject/](https://ellewest.github.io/MinimalistNotesProject/)
 - **Backend**: Deployed on Render at [https://minimalist-notes-backend.onrender.com](https://minimalist-notes-backend.onrender.com)
 
-Note: The backend is hosted on Render’s free tier, which may cause a delay of up to 60 seconds when loading the app for the first time after a period of inactivity. 
+Note: The backend is hosted on Render’s free tier, which may cause a delay of up to 60 seconds when loading the app for the first time after a period of inactivity.
 Please wait a moment if the app seems slow initially.
 
 ## 🛠️ Technology Stack
@@ -149,7 +149,7 @@ Please wait a moment if the app seems slow initially.
 
 ### How to Use
 
-1. **Sign in** with your Google account for personalized data
+1. **Sign in** with Google account or create a manual account with email/password
 2. **Create notes** with auto-save functionality (1-second delay)
 3. **Manage todos** with real-time persistence
 4. **Use timers** for task tracking with custom names
@@ -159,161 +159,73 @@ Please wait a moment if the app seems slow initially.
 
 ## 🧪 Test Cases
 
-### 1. Google Authentication
+### 1. Authentication
 
-**Test Case 1: User can sign in with Google account**
+**Google Sign-In**
 
-- Navigate to the application homepage
-- Click the "Sign in with Google" button
-- Complete Google OAuth authentication
-- **Expected:** User is signed in, welcome message displays user's name, and user data loads
+- Click "Sign In" → "Google Sign-In"
+- Complete Google OAuth
+- **Expected:** User signed in with welcome message
 
-**Test Case 2: User can sign out**
+**Manual Sign-In**
 
-- Ensure you are signed in
-- Click the "Sign Out" button
-- **Expected:** User is signed out, data is cleared from interface, and sign-in button reappears
+- Click "Sign In" → Enter email/password → "Sign In"
+- **Expected:** New users auto-registered, existing users logged in
 
-**Test Case 3: Authentication persists across sessions**
+**Sign Out**
 
-- Sign in with Google account
-- Close the browser tab/window
-- Reopen the application
-- **Expected:** User remains signed in and their data is displayed
+- Click user name in header → confirm sign out
+- **Expected:** User signed out, data cleared
 
 ### 2. Notes Management
 
-**Test Case 1: User can create a new note**
+**Create & Edit Notes**
 
-- Sign in to the application
-- Type text in the notes textarea
-- Wait 1 second for auto-save
-- **Expected:** Note content is saved and persists after page refresh
+- Click "Notes" button → type content in new note
+- Edit existing notes by clicking and typing
+- **Expected:** Auto-saves after 1 second, up to 15 notes max, persists on refresh
 
-**Test Case 2: User can edit existing notes**
+**Delete Notes**
 
-- Create a note with some text
-- Modify the text content
-- Wait 1 second for auto-save
-- **Expected:** Changes are saved automatically and persist after page refresh
-
-**Test Case 3: Notes are user-specific**
-
-- Sign in with one Google account and create notes
-- Sign out and sign in with a different Google account
-- **Expected:** Previous user's notes are not visible; each user sees only their own notes
+- Click "×" button on any note
+- **Expected:** Note deleted immediately and removed from backend
 
 ### 3. Todo Management
 
-**Test Case 1: User can add a new todo**
+**Add & Manage Todos**
 
-- Sign in to the application
-- Click the "+" button in the todos section
-- Enter "Test todo item" and press Enter
-- **Expected:** New todo appears in the list with a checkbox
+- Click "To-Do List" heading → type item → press Enter
+- Click checkbox to mark complete/incomplete (strikethrough effect)
+- Click "×" button to delete todos
+- **Expected:** Up to 30 todos, all changes persist and sync across sessions
 
-**Test Case 2: User can complete a todo**
+### 4. Timer/Stopwatch Functionality
 
-- Add a todo item
-- Click the checkbox next to the todo
-- **Expected:** Todo is marked as completed (strikethrough text)
+**Create & Control Timers**
 
-**Test Case 3: User can delete a todo**
+- Click "Stopwatch" heading → enter timer name → press Enter
+- Use ▶️ (start), ⏸️ (pause), 🔄 (reset), ⏹️ (delete) buttons
+- Edit timer names by clicking on title
+- **Expected:** Multiple independent timers (up to 30), time tracking persists across sessions
 
-- Add a todo item
-- Click the "×" button next to the todo
-- **Expected:** Todo is removed from the list
+### 5. Desktop Header Behavior
 
-**Test Case 4: Todos persist across sessions**
+**Header Auto-Hide on Scroll**
 
-- Add several todos and mark some as complete
-- Sign out and sign back in
-- **Expected:** All todos remain with their completion status preserved
+- On desktop, scroll down the page
+- **Expected:** Header disappears; scroll up to show header again
 
-### 4. Timer Functionality
+### 6. Data Persistence
 
-**Test Case 1: User can start a timer**
+**Session Persistence**
 
-- Sign in to the application
-- Click the "+" button in timers section
-- Enter "Work Session" as timer name and press Enter
-- Click the "Start" button on the timer
-- **Expected:** Timer starts counting up from 00:00:00
+- Create content → refresh page
+- **Expected:** All data remains intact
 
-**Test Case 2: User can pause and resume a timer**
+**User Data Isolation**
 
-- Start a timer
-- Click the "Pause" button
-- Wait a few seconds
-- Click "Resume" button
-- **Expected:** Timer pauses and resumes correctly, maintaining elapsed time
-
-**Test Case 3: User can reset a timer**
-
-- Start a timer and let it run for a few seconds
-- Click the "Reset" button
-- **Expected:** Timer resets to 00:00:00
-
-**Test Case 4: User can rename a timer**
-
-- Create a timer with any name
-- Click on the timer title
-- Change the name to "New Timer Name" and press Enter
-- **Expected:** Timer name is updated and persists after page refresh
-
-**Test Case 5: User can delete a timer**
-
-- Create a timer
-- Click the "×" button next to the timer
-- **Expected:** Timer is removed from the list
-
-### 5. Quote Functionality
-
-**Test Case 1: Application displays daily quotes**
-
-- Navigate to the application
-- **Expected:** A quote with author attribution is displayed
-
-**Test Case 2: User can refresh quotes**
-
-- Click the refresh button next to the quote
-- **Expected:** A new quote appears (may take a moment to load)
-
-**Test Case 3: Religious content filtering works**
-
-- Refresh quotes multiple times
-- **Expected:** No religious or explicitly spiritual quotes are displayed
-
-**Test Case 4: Fallback system works when APIs fail**
-
-- Check browser console for any API errors
-- **Expected:** Even if external APIs fail, local fallback quotes are displayed
-
-### 6. Weather Integration
-
-**Test Case 1: Weather information displays**
-
-- Navigate to the application
-- **Expected:** Current weather information is displayed (temperature, description, location)
-
-**Test Case 2: Weather updates periodically**
-
-- Leave the application open for several minutes
-- **Expected:** Weather information updates automatically
-
-### 7. Data Persistence
-
-**Test Case 1: All data persists after browser refresh**
-
-- Sign in and create notes, todos, and timers
-- Refresh the browser page
-- **Expected:** All user data remains exactly as it was before refresh
-
-**Test Case 2: Data is isolated between users**
-
-- Sign in with User A, create some content
-- Sign out and sign in with User B
-- **Expected:** User B sees no content from User A; each user's data is completely separate
+- Sign in as different users
+- **Expected:** Each user sees only their own data
 
 ## 🔒 Environment Configuration
 
