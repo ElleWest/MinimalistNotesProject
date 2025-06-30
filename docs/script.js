@@ -1232,6 +1232,17 @@ function signOut() {
   localStorage.removeItem("authType");
   console.log("🗑️ Cleared stored authentication tokens");
 
+  // Clear session storage from OAuth attempts
+  sessionStorage.removeItem("oauth_state");
+  sessionStorage.removeItem("oauth_nonce");
+  sessionStorage.removeItem("oauth_timestamp");
+  console.log("🗑️ Cleared OAuth session data");
+
+  // Reset global sign-in flags
+  window.googleSignInInProgress = false;
+  window.redirectInProgress = false;
+  console.log("🔄 Reset sign-in flags");
+
   // Clear all user data when signing out
   const notesContainer = document.getElementById("notesContainer");
   if (notesContainer) {
@@ -1248,18 +1259,25 @@ function signOut() {
     timerContainer.innerHTML = "";
   }
 
-  // Properly reset Google Sign-In
-  if (window.google) {
-    google.accounts.id.disableAutoSelect();
-    // Re-initialize Google Auth to make sign-in work again
-    setTimeout(() => {
-      console.log("🔄 Re-initializing Google Auth...");
+  // Properly reset Google Sign-In with same parameters as main init
+  if (window.google && window.google.accounts) {
+    try {
+      google.accounts.id.disableAutoSelect();
+      console.log("🔄 Re-initializing Google Auth with proper settings...");
+
       google.accounts.id.initialize({
         client_id:
           "1038950117037-i0buqo6336f193107jlqbuk4egkn85pn.apps.googleusercontent.com",
         callback: handleCredentialResponse,
+        auto_select: false,
+        cancel_on_tap_outside: false,
+        use_fedcm_for_prompt: false, // Same settings as main init
       });
-    }, 100);
+
+      console.log("✅ Google Auth re-initialized successfully");
+    } catch (error) {
+      console.error("❌ Google Auth re-initialization failed:", error);
+    }
   }
 
   updateSignInUI();
@@ -1389,9 +1407,19 @@ function handleOAuthRedirect() {
 
   if (idToken) {
     const storedState = sessionStorage.getItem("oauth_state");
+    const timestamp = sessionStorage.getItem("oauth_timestamp");
 
     console.log("🔍 Verifying state...");
     console.log("🔑 Stored:", storedState, "Received:", state);
+    console.log("⏰ Request timestamp:", timestamp);
+
+    // Check if request is too old (over 5 minutes to prevent stale redirects)
+    if (timestamp && Date.now() - parseInt(timestamp) > 300000) {
+      console.error("❌ OAuth redirect too old (over 5 minutes)");
+      showNotification("Sign-in session expired. Please try again.", "error");
+      cleanUpOAuth();
+      return;
+    }
 
     if (state && state !== storedState) {
       console.error("❌ State mismatch");
@@ -1475,6 +1503,11 @@ function initializeGoogleAuth() {
 // Enhanced document ready handler
 document.addEventListener("DOMContentLoaded", () => {
   console.log("📄 DOM loaded, starting initialization...");
+
+  // Reset any lingering flags from previous sessions
+  window.googleSignInInProgress = false;
+  window.redirectInProgress = false;
+  console.log("🔄 Reset global flags on page load");
 
   // Check for existing session first (before Google Auth init)
   checkExistingSession();
