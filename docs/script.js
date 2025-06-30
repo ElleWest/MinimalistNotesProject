@@ -919,7 +919,7 @@ function closeSignInModal() {
   }
 }
 
-// Simple Google sign-in that just works
+// Google sign-in with working fallback
 async function handleGoogleSignIn() {
   console.log("🔐 Google sign-in selected");
 
@@ -933,7 +933,9 @@ async function handleGoogleSignIn() {
   }
 
   try {
-    // Just use One Tap - no redirects, no fallbacks, just the working method
+    showGreyNotification("Opening Google Sign-In...");
+
+    // First try One Tap
     google.accounts.id.prompt((notification) => {
       console.log(
         "📋 One Tap notification:",
@@ -941,22 +943,84 @@ async function handleGoogleSignIn() {
       );
 
       if (notification.isNotDisplayed && notification.isNotDisplayed()) {
-        showNotification(
-          "Google Sign-In not available. Please try manual sign-in.",
-          "error"
-        );
+        console.log("ℹ️ One Tap not displayed, trying popup");
+        tryGooglePopup();
       } else if (
         notification.isSkippedMoment &&
         notification.isSkippedMoment()
       ) {
-        showNotification(
-          "Google Sign-In was skipped. Please try manual sign-in.",
-          "error"
-        );
+        console.log("ℹ️ One Tap skipped, trying popup");
+        tryGooglePopup();
       }
     });
   } catch (error) {
-    console.error("❌ Google sign-in failed:", error);
+    console.error("❌ One Tap failed, trying popup:", error);
+    tryGooglePopup();
+  }
+}
+
+// Fallback popup method
+function tryGooglePopup() {
+  try {
+    // Initialize OAuth2 for popup
+    google.accounts.oauth2
+      .initTokenClient({
+        client_id:
+          "1038950117037-i0buqo6336f193107jlqbuk4egkn85pn.apps.googleusercontent.com",
+        scope: "email profile",
+        callback: (response) => {
+          if (response.access_token) {
+            console.log("✅ Got OAuth token, fetching user info");
+            fetchGoogleUserInfo(response.access_token);
+          } else {
+            console.error("❌ No access token received");
+            showNotification(
+              "Google Sign-In failed. Please try manual sign-in.",
+              "error"
+            );
+          }
+        },
+      })
+      .requestAccessToken();
+  } catch (error) {
+    console.error("❌ Popup method also failed:", error);
+    showNotification(
+      "Google Sign-In not available. Please try manual sign-in.",
+      "error"
+    );
+  }
+}
+
+// Fetch user info from Google API
+async function fetchGoogleUserInfo(accessToken) {
+  try {
+    const response = await fetch(
+      "https://www.googleapis.com/oauth2/v2/userinfo",
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+
+    const userInfo = await response.json();
+    console.log("👤 Google user info:", userInfo);
+
+    // Create a credential-like response for our existing handler
+    const mockCredential = {
+      credential: btoa(
+        JSON.stringify({
+          sub: userInfo.id,
+          email: userInfo.email,
+          name: userInfo.name,
+          picture: userInfo.picture,
+        })
+      ),
+    };
+
+    await handleCredentialResponse(mockCredential);
+  } catch (error) {
+    console.error("❌ Failed to fetch user info:", error);
     showNotification(
       "Google Sign-In failed. Please try manual sign-in.",
       "error"
