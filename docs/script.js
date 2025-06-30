@@ -1026,18 +1026,19 @@ async function handleManualSignIn() {
     } else {
       // Check for specific error types and show appropriate notifications
       if (response.isGoogleAccount) {
-        // Email is registered with Google
-        showErrorNotification(
-          "Email registered with Google Sign-In. Use Google Sign-In instead."
+        showNotification(
+          "This email is registered with Google. Please use Google Sign-In instead.",
+          "error"
         );
+      } else if (!response.success && response.message.includes("Invalid")) {
+        showNotification("Wrong password. Please try again.", "error");
       } else {
-        // Other errors (invalid password, validation errors, etc.)
         showNotification(response.message || "Sign-in failed", "error");
       }
     }
   } catch (error) {
     console.error("❌ Manual sign-in failed:", error);
-    showNotification("Connection error. Please try again.", "error");
+    showNotification("Login error. Please try again.", "error");
   }
 }
 
@@ -1087,21 +1088,21 @@ function tryRedirectSignIn() {
     window.location.origin + window.location.pathname
   );
   const scope = "openid profile email";
-  const responseType = "code";
+  const responseType = "token id_token";
   const state = Math.random().toString(36).substring(2, 15);
 
   // Store state for verification
   sessionStorage.setItem("oauth_state", state);
 
   const authUrl =
-    `https://accounts.google.com/oauth/v2/auth?` +
+    `https://accounts.google.com/o/oauth2/v2/auth?` +
     `client_id=${clientId}&` +
     `redirect_uri=${redirectUri}&` +
     `scope=${scope}&` +
     `response_type=${responseType}&` +
     `state=${state}&` +
-    `access_type=offline&` +
-    `prompt=consent`;
+    `nonce=${Math.random().toString(36).substring(2, 15)}&` +
+    `prompt=select_account`;
 
   console.log("🌐 Redirecting to Google OAuth...");
   window.location.href = authUrl;
