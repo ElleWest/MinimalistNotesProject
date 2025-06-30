@@ -50,6 +50,33 @@ body::-webkit-scrollbar-thumb:hover {
   padding-bottom: 260px;
 }
 
+/* Flexbox layout for main functional sections */
+.main-sections {
+  display: flex;
+  justify-content: space-between;
+  gap: 2rem;
+  margin: 3rem auto;
+  flex-wrap: wrap;
+  max-width: 1200px; /* Prevent spreading too wide */
+  align-items: flex-start;
+}
+
+.section {
+  flex: 1;
+  min-width: 200px; /* Minimum width before wrapping */
+  display: flex;
+  flex-direction: column; /* Stack button above container */
+  align-items: center; /* Center align items */
+  gap: 1rem; /* Space between button and container */
+}
+
+/* Specific styling for datetime-weather section */
+.datetime-weather-section {
+  flex-direction: column;
+  align-items: center;
+  max-width: 320px;
+}
+
 /* Main title styling */
 h1 {
   font-size: 2.5rem;
@@ -69,10 +96,8 @@ h2 {
 
 /* Create note button styling */
 button {
-  position: absolute;
-  left: 2rem;
-  top: 10rem;
-  width: 200px;
+  position: static; /* Changed from absolute */
+  width: 300px; /* Match todolist button width */
   padding: 1.1rem 1.5rem;
   font-family: "Press Start 2P", monospace;
   font-size: 1rem;
@@ -108,9 +133,7 @@ button:hover {
 
 /* To-Do List heading box */
 .todo-heading {
-  position: absolute;
-  left: 14rem;
-  top: 10rem;
+  position: static; /* Changed from absolute */
   padding: 0.8rem 1.5rem;
   font-family: "Press Start 2P", monospace;
   font-size: 1rem;
@@ -145,9 +168,7 @@ body.dark-mode .todo-heading:hover {
 
 /* Stopwatch heading as button with red pixel shadow */
 .stopwatch-heading {
-  position: absolute;
-  left: 31rem;
-  top: 10rem;
+  position: static; /* Changed from absolute */
   padding: 0.8rem 1.5rem;
   font-family: "Press Start 2P", monospace;
   font-size: 1rem;
@@ -181,9 +202,7 @@ body.dark-mode .stopwatch-heading:hover {
 
 /* Weather heading as button with yellow pixel shadow */
 .weather-heading {
-  position: absolute;
-  left: 48rem;
-  top: 17.5rem;
+  position: static; /* Changed from absolute */
   padding: 0.8rem 1.5rem;
   font-family: "Press Start 2P", monospace;
   font-size: 1rem;
@@ -192,7 +211,7 @@ body.dark-mode .stopwatch-heading:hover {
   border: 1px solid #000000;
   text-shadow: none;
   border-radius: 0;
-  width: 400px;
+  width: 300px; /* Match other button widths */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -217,20 +236,22 @@ body.dark-mode .weather-heading:hover {
 
 /* Weather container with yellow pixel shadow */
 .weather-container {
-  position: absolute;
-  left: 48rem;
-  top: 21.5rem;
+  position: static; /* Changed from absolute */
   padding: 1rem;
   background-color: #ffffff;
   border: 1px solid #000000;
   border-radius: 0;
-  width: 400px;
+  width: 300px; /* Match other container widths */
+  max-width: 100%; /* Ensure it doesn't overflow its container */
   display: flex;
   flex-direction: column;
   gap: 1rem;
   transition: transform 0.3s ease;
   box-shadow: 4px 4px 0 rgb(255, 221, 51);
   transform: translate(-4px, -4px);
+  margin-top: 1rem; /* Gap below weather heading */
+  box-sizing: border-box; /* Include padding in width calculation */
+  overflow: hidden; /* Prevent any content from overflowing */
 }
 
 .weather-container:hover {
@@ -252,6 +273,9 @@ body.dark-mode .weather-container:hover {
   align-items: center;
   justify-content: center;
   margin-bottom: 1rem;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .location-input {
@@ -261,10 +285,13 @@ body.dark-mode .weather-container:hover {
   font-family: "Press Start 2P", monospace;
   font-size: 0.8rem;
   padding: 0.5rem;
-  width: 200px;
+  width: 100%;
+  max-width: 220px; /* Responsive width instead of fixed */
+  min-width: 120px; /* Minimum width for readability */
   text-align: center;
   outline: none;
   border-radius: 0;
+  box-sizing: border-box;
 }
 
 .search-btn {
@@ -305,9 +332,11 @@ body.dark-mode .weather-container:hover {
 .weather-item {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start; /* Allow items to align at top for multi-line text */
   padding: 0.5rem;
   border-bottom: 1px solid #000000;
+  gap: 0.5rem; /* Add gap between label and value */
+  flex-wrap: wrap; /* Allow wrapping if needed */
 }
 
 .weather-item:last-child {
@@ -316,13 +345,21 @@ body.dark-mode .weather-container:hover {
 
 .weather-label {
   color: #000000;
-  font-size: 0.9rem;
+  font-size: 0.6rem; /* Much smaller font */
+  flex-shrink: 0; /* Prevent label from shrinking */
+  min-width: 50px; /* Smaller minimum width */
+  white-space: nowrap; /* Keep labels on one line */
 }
 
 .weather-value {
   color: #000000;
-  font-size: 0.8rem;
+  font-size: 0.6rem; /* Much smaller font */
   font-weight: bold;
+  white-space: nowrap; /* Keep values on one line */
+  text-align: right;
+  overflow: hidden; /* Hide overflow */
+  text-overflow: ellipsis; /* Show ... for long text */
+  max-width: 120px; /* Smaller max width */
 }
 
 /* Delete button styling for notes and to-do list */
@@ -388,12 +425,12 @@ body.dark-mode .delete-btn:hover {
 
 /* Notes container layout */
 .notes-container {
-  position: absolute;
-  left: 2rem;
-  top: 14rem;
+  position: static; /* Remove absolute positioning */
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  width: 100%;
+  max-width: 320px; /* Control maximum width - keep same for layout */
 }
 
 /* Individual note wrapper for positioning */
@@ -404,7 +441,8 @@ body.dark-mode .delete-btn:hover {
 
 /* Note textarea styling */
 .note {
-  width: 200px;
+  width: 100%; /* Use full container width */
+  max-width: 300px; /* Match todolist width */
   height: 200px;
   background-color: #ffffff;
   border: 1px solid #000000;
@@ -468,12 +506,12 @@ body.dark-mode .note:focus {
 }
 
 .todo-list-container {
-  position: absolute;
-  left: 14rem;
-  top: 14rem;
+  position: static; /* Remove absolute positioning */
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  width: 100%;
+  max-width: 320px; /* Control maximum width */
 }
 
 .todo-item {
@@ -485,7 +523,8 @@ body.dark-mode .note:focus {
   border: 1px solid #000000;
   border-radius: 0;
   color: #000000;
-  width: 300px;
+  width: 100%; /* Use full container width */
+  max-width: 300px; /* But don't exceed original size */
   box-shadow: 4px 4px 0 rgb(145, 203, 65);
   transform: translate(-4px, -4px);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -563,12 +602,12 @@ body.dark-mode .note:focus {
 }
 
 .timer-container {
-  position: absolute;
-  left: 31rem;
-  top: 14rem;
+  position: static; /* Remove absolute positioning */
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  width: 100%;
+  max-width: 320px; /* Control maximum width */
 }
 
 /* Stopwatch timer-box with red pixel shadow */
@@ -581,7 +620,8 @@ body.dark-mode .note:focus {
   border: 1px solid #000000;
   border-radius: 0;
   color: #000000;
-  width: 300px;
+  width: 100%; /* Use full container width */
+  max-width: 300px; /* But don't exceed original size */
   box-shadow: 4px 4px 0 rgb(255, 0, 0);
   transform: translate(-4px, -4px);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -725,16 +765,15 @@ body.dark-mode .timer-controls button:hover {
 }
 
 .weather-container.minimized .weather-value {
-  font-size: 1.1rem;
+  font-size: 0.6rem; /* Much smaller when minimized */
   color: #000000;
+  white-space: nowrap; /* Keep everything on one line */
 }
 
 /* Date/time flip box with orange pixel shadow */
 .date-time-container {
-  position: absolute;
-  left: 48rem;
-  top: 10rem;
-  width: 400px;
+  position: static; /* Changed from absolute */
+  width: 320px;
   min-height: 120px;
   padding: 0.8rem 1.5rem;
   background-color: #ffffff;
@@ -750,6 +789,7 @@ body.dark-mode .timer-controls button:hover {
   align-items: center;
   justify-content: center;
   height: auto;
+  margin-bottom: 1.5rem; /* Space between date-time and weather */
 }
 .date-time-container:hover {
   transform: translate(0, 0);
@@ -869,6 +909,24 @@ body.dark-mode .date-time-container:hover {
   text-align: right;
 }
 
+/* Large screen optimization */
+@media screen and (min-width: 1400px) {
+  .main-sections {
+    max-width: 1400px;
+    gap: 3rem;
+  }
+
+  /* Prevent elements from becoming too large */
+  .section {
+    max-width: 320px;
+  }
+
+  /* Keep datetime-weather section properly sized */
+  .datetime-weather-section {
+    max-width: 320px;
+  }
+}
+
 /* Responsive Design */
 @media screen and (max-width: 1200px) {
   .container {
@@ -886,34 +944,70 @@ body.dark-mode .date-time-container:hover {
     font-size: 1rem;
   }
 
+  /* Update flexbox layout for medium screens */
+  .main-sections {
+    flex-direction: column;
+    gap: 1.5rem;
+    max-width: 100%;
+    margin: 2rem auto;
+  }
+
+  .section {
+    min-width: auto;
+  }
+
+  /* Responsive datetime-weather section */
+  .datetime-weather-section {
+    max-width: 100%;
+  }
+
+  .date-time-container {
+    width: 100%;
+    max-width: 600px; /* Match other containers */
+    margin-bottom: 1rem;
+  }
+
+  .weather-heading {
+    width: 100%;
+    max-width: 600px; /* Match other buttons */
+  }
+
+  .weather-container {
+    width: 100%;
+    max-width: 600px; /* Match other containers */
+  }
+
   button {
     position: static;
     margin: 1rem auto;
     display: block;
   }
 
-  /* Notes Section */
+  /* Proper sequential ordering for vertical tablet layout */
+  #createNoteBtn {
+    position: static;
+    width: 100%;
+    max-width: 600px;
+    margin: 1rem auto;
+    order: 1; /* First button after H1/H2 */
+  }
+
   .notes-container {
     position: static;
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 1rem;
     margin: 1rem auto;
-    max-width: 1200px;
-    order: 1;
+    max-width: 600px;
+    order: 2; /* Immediately after notes button */
   }
 
-  #createNoteBtn {
-    order: 0;
-  }
-
-  /* Todo Section */
   .todo-heading {
     position: static;
     width: 100%;
     max-width: 600px;
     margin: 1rem auto;
-    order: 2;
+    order: 3; /* Next button */
   }
 
   .todo-list-container {
@@ -921,16 +1015,15 @@ body.dark-mode .date-time-container:hover {
     width: 100%;
     max-width: 600px;
     margin: 1rem auto;
-    order: 3;
+    order: 4; /* After todo button */
   }
 
-  /* Stopwatch Section */
   .stopwatch-heading {
     position: static;
     width: 100%;
     max-width: 600px;
     margin: 1rem auto;
-    order: 4;
+    order: 5; /* Next button */
   }
 
   .timer-container {
@@ -938,16 +1031,15 @@ body.dark-mode .date-time-container:hover {
     width: 100%;
     max-width: 600px;
     margin: 1rem auto;
-    order: 5;
+    order: 6; /* After stopwatch button */
   }
 
-  /* Weather Section */
   .weather-heading {
     position: static;
     width: 100%;
     max-width: 600px;
     margin: 1rem auto;
-    order: 6;
+    order: 7; /* Next button */
   }
 
   .weather-container {
@@ -955,16 +1047,15 @@ body.dark-mode .date-time-container:hover {
     width: 100%;
     max-width: 600px;
     margin: 1rem auto;
-    order: 7;
+    order: 8; /* After weather button */
   }
 
-  /* Date Time Section */
   .date-time-container {
     position: static;
     width: 100%;
     max-width: 600px;
     margin: 1rem auto;
-    order: 8;
+    order: 9; /* Final element */
   }
 
   .todo-item,
@@ -998,36 +1089,13 @@ body.dark-mode .date-time-container:hover {
 @media screen and (max-width: 768px) {
   /* REMOVED CONFLICTING HEADER RULE */
   .dark-mode-toggle {
-    width: 32px;
-    height: 32px;
-    font-size: 1rem;
+    width: 56px; /* Match our new header system */
+    height: 56px;
+    font-size: 1.6rem;
     margin-top: -20px;
   }
 
-  .container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding-top: 0;
-  }
-
-  h1 {
-    font-size: 1.5rem;
-  }
-
-  h2 {
-    font-size: 0.8rem;
-  }
-
-  button {
-    font-size: 0.8rem;
-    padding: 0.8rem 1rem;
-  }
-
-  .notes-container {
-    grid-template-columns: 1fr;
-  }
-
+  /* Keep note height reasonable for mobile */
   .note {
     height: 150px;
   }
@@ -1044,6 +1112,21 @@ body.dark-mode .date-time-container:hover {
   .location-input {
     font-size: 0.8rem;
     width: 100%;
+    max-width: 200px; /* Smaller max-width on mobile */
+    min-width: 100px;
+  }
+
+  .weather-value {
+    max-width: 100px; /* Smaller max-width on mobile */
+    font-size: 0.5rem; /* Even smaller on mobile */
+    white-space: nowrap; /* Keep on one line */
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .weather-label {
+    min-width: 40px; /* Smaller min-width on mobile */
+    font-size: 0.5rem; /* Even smaller on mobile */
   }
 
   .delete-btn {
@@ -1070,52 +1153,7 @@ body.dark-mode .date-time-container:hover {
   }
 }
 
-@media screen and (max-width: 480px) {
-  h1 {
-    font-size: 1.2rem;
-  }
-
-  h2 {
-    font-size: 0.7rem;
-  }
-
-  button {
-    font-size: 0.7rem;
-    padding: 0.7rem 0.8rem;
-  }
-
-  .note {
-    height: 120px;
-  }
-
-  .weather-info,
-  .date-time-content {
-    font-size: 0.7rem;
-  }
-
-  .timer-display {
-    font-size: 0.9rem;
-  }
-
-  .location-input {
-    font-size: 0.7rem;
-  }
-
-  .delete-btn {
-    width: 18px;
-    height: 18px;
-    font-size: 0.7rem;
-  }
-
-  .note::placeholder {
-    font-size: 0.6rem;
-  }
-
-  /* Stopwatch placeholder text styling */
-  .timer-title::placeholder {
-    font-size: 0.6rem;
-  }
-}
+/* REMOVED - Old conflicting mobile styles replaced by unified responsive system above */
 
 /* To-do list pseudo-placeholder text styling */
 .todo-item span[contenteditable="true"]:empty:before {
@@ -1173,7 +1211,7 @@ body.dark-mode .timer-title {
 }
 
 .header-quote-btn {
-  width: 200px;
+  width: 300px; /* Match main button widths */
   padding: 1.1rem 1.5rem;
   font-family: "Press Start 2P", monospace;
   font-size: 1rem;
@@ -1269,14 +1307,25 @@ body.dark-mode .header-blank-box:hover {
   top: auto !important;
   right: auto !important;
   z-index: 1101;
-  width: 40px;
-  height: 40px;
-  font-size: 1.2rem;
+  width: 56px; /* Match quote button height */
+  height: 56px; /* Square shape */
+  font-size: 1.6rem; /* Larger icons to match bigger button */
   padding: 0;
+  box-shadow: 4px 4px 0 rgb(220, 220, 220); /* Light grey shadow - full shadow like others */
+  transform: translate(-4px, -4px); /* Full shadow offset like others */
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .dark-mode-toggle .moon-icon {
   display: none;
+}
+
+.dark-mode-toggle:hover {
+  box-shadow: none; /* Remove shadow on hover like other buttons */
+  transform: translate(0, 0); /* Reset position on hover */
 }
 
 /* Dark mode styles */
@@ -1351,6 +1400,8 @@ body.dark-mode .blank-footer {
 body.dark-mode .dark-mode-toggle {
   border-color: #ffffff;
   color: #ffffff;
+  box-shadow: 4px 4px 0 rgb(100, 100, 100); /* Bigger darker grey shadow for dark mode */
+  transform: translate(-4px, -4px);
 }
 
 body.dark-mode .dark-mode-toggle .sun-icon {
@@ -1359,6 +1410,11 @@ body.dark-mode .dark-mode-toggle .sun-icon {
 
 body.dark-mode .dark-mode-toggle .moon-icon {
   display: block;
+}
+
+body.dark-mode .dark-mode-toggle:hover {
+  box-shadow: none; /* Remove shadow on hover in dark mode */
+  transform: translate(0, 0); /* Reset position on hover */
 }
 
 /* Make all text white in dark mode */
@@ -1443,120 +1499,234 @@ body.dark-mode .note:focus::placeholder {
 @media screen and (max-width: 768px) {
   /* CONFLICTING HEADER RULE REMOVED */
   .dark-mode-toggle {
-    width: 32px;
-    height: 32px;
-    font-size: 1rem;
+    /* Use consistent sizing - this will be overridden by header media query above */
+    width: 56px;
+    height: 56px;
+    font-size: 1.6rem;
   }
 
   .container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding-top: 0;
+    padding-top: calc(2rem + 15px); /* Space below header + 15px shift */
   }
 
   h1 {
-    order: 0;
-    margin-top: 1rem;
+    font-size: 2rem;
+    margin-top: calc(2rem + 15px); /* More space below header + 15px shift */
+    margin-bottom: 0.5rem;
   }
 
   h2 {
-    order: 1;
-    margin-bottom: 2rem;
+    font-size: 1rem;
+    margin-bottom: 2rem; /* Consistent spacing */
   }
 
+  /* Override main-sections to stack vertically */
+  .main-sections {
+    flex-direction: column;
+    gap: 2rem; /* Consistent spacing between sections */
+    margin: 2rem 0; /* Remove horizontal margins to match header width */
+    max-width: 600px;
+    width: 100%; /* Ensure full width like header */
+  }
+
+  .section {
+    width: 100%;
+    align-items: center;
+    gap: 1rem; /* Space between button and container */
+  }
+
+  /* Make all buttons consistent size */
   #createNoteBtn {
-    order: 2;
-    position: static;
-    margin: 0 auto;
-    width: 100%;
-    max-width: 600px;
-  }
-
-  .notes-container {
-    order: 3;
-    position: static;
-    width: 100%;
-    max-width: 600px;
-    margin: 1rem auto;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 1rem;
+    width: 100% !important;
+    max-width: 600px !important;
+    height: 56px !important; /* Match header button height */
+    font-size: 1rem !important;
+    padding: 0.8rem 1.5rem !important;
+    margin: 0 auto 1rem auto !important;
+    position: static !important;
+    box-shadow: 4px 4px 0 rgb(30, 156, 237) !important; /* Notes blue */
+    transform: translate(-4px, -4px) !important;
   }
 
   .todo-heading {
-    order: 4;
-    position: static;
-    width: 100%;
-    max-width: 600px;
-    margin: 1rem auto;
-  }
-
-  .todo-list-container {
-    order: 5;
-    position: static;
-    width: 100%;
-    max-width: 600px;
-    margin: 1rem auto;
+    width: 100% !important;
+    max-width: 600px !important;
+    height: 56px !important;
+    font-size: 1rem !important;
+    padding: 0.8rem 1.5rem !important;
+    margin: 0 auto 1rem auto !important;
+    position: static !important;
+    box-shadow: 4px 4px 0 rgb(145, 203, 65) !important; /* Todo green */
+    transform: translate(-4px, -4px) !important;
   }
 
   .stopwatch-heading {
-    order: 6;
-    position: static;
-    width: 100%;
-    max-width: 600px;
-    margin: 1rem auto;
-  }
-
-  .timer-container {
-    order: 7;
-    position: static;
-    width: 100%;
-    max-width: 600px;
-    margin: 1rem auto;
+    width: 100% !important;
+    max-width: 600px !important;
+    height: 56px !important;
+    font-size: 1rem !important;
+    padding: 0.8rem 1.5rem !important;
+    margin: 0 auto 1rem auto !important;
+    position: static !important;
+    box-shadow: 4px 4px 0 rgb(255, 0, 0) !important; /* Stopwatch red */
+    transform: translate(-4px, -4px) !important;
   }
 
   .weather-heading {
-    order: 8;
-    position: static;
-    width: 100%;
-    max-width: 600px;
-    margin: 1rem auto;
+    width: 100% !important;
+    max-width: 600px !important;
+    height: 56px !important;
+    font-size: 1rem !important;
+    padding: 0.8rem 1.5rem !important;
+    margin: 0 auto 1rem auto !important;
+    position: static !important;
+    box-shadow: 4px 4px 0 rgb(255, 221, 51) !important; /* Weather yellow */
+    transform: translate(-4px, -4px) !important;
   }
 
-  .weather-container {
-    order: 9;
-    position: static;
-    width: 100%;
-    max-width: 600px;
-    margin: 1rem auto;
-  }
-
+  /* Containers below their respective buttons */
+  .notes-container,
+  .todo-list-container,
+  .timer-container,
+  .weather-container,
   .date-time-container {
-    order: 10;
-    position: static;
-    width: 100%;
-    max-width: 600px;
-    margin: 1rem auto;
+    width: 100% !important;
+    max-width: 600px !important;
+    margin: 0 auto 2rem auto !important;
+    position: static !important;
+  }
+
+  /* Fix container background colors for mobile */
+  .todo-list-container {
+    background-color: transparent !important;
+  }
+
+  .timer-container {
+    background-color: transparent !important;
+  }
+
+  /* Fix todo item styling for mobile */
+  .todo-item {
+    background-color: #ffffff !important;
+    border: 1px solid #000000 !important;
+    box-shadow: 4px 4px 0 rgb(145, 203, 65) !important; /* Green shadow for todo */
+    transform: translate(-4px, -4px) !important;
+  }
+
+  /* Fix timer box styling for mobile */
+  .timer-box {
+    background-color: #ffffff !important;
+    border: 1px solid #000000 !important;
+    box-shadow: 4px 4px 0 rgb(255, 0, 0) !important; /* Red shadow for timer */
+    transform: translate(-4px, -4px) !important;
+  }
+
+  /* Dark mode fixes for mobile containers */
+  body.dark-mode .todo-item {
+    background-color: #1a1a1a !important;
+    color: #ffffff !important;
+    border-color: #ffffff !important;
+  }
+
+  body.dark-mode .timer-box {
+    background-color: #1a1a1a !important;
+    color: #ffffff !important;
+    border-color: #ffffff !important;
+  }
+
+  /* Fix delete button positioning for mobile */
+  .note-wrapper .delete-btn {
+    position: absolute !important;
+    top: 0.5rem !important;
+    right: 0.5rem !important;
+    z-index: 3 !important;
+    width: 20px !important;
+    height: 20px !important;
+    font-size: 0.9rem !important;
+  }
+
+  /* Dark mode toggle shadow fix for mobile */
+  body.dark-mode .dark-mode-toggle {
+    box-shadow: 4px 4px 0 rgb(100, 100, 100) !important; /* Darker shadow in dark mode */
+  }
+
+  .notes-container {
+    display: grid;
+    grid-template-columns: repeat(
+      auto-fill,
+      minmax(250px, 1fr)
+    ); /* Larger min for mobile */
+    gap: 1rem;
+  }
+
+  /* Make individual content items wider on mobile */
+  .note {
+    max-width: 100% !important; /* Remove 300px constraint */
+    width: 100% !important;
+  }
+
+  .todo-item {
+    max-width: 100% !important; /* Remove 300px constraint */
+    width: 100% !important;
+  }
+
+  .timer-box {
+    max-width: 100% !important; /* Remove 300px constraint */
+    width: 100% !important;
   }
 }
 
 @media screen and (max-width: 480px) {
   /* CONFLICTING HEADER RULE REMOVED */
   .dark-mode-toggle {
-    width: 28px;
-    height: 28px;
-    font-size: 0.9rem;
+    /* Use consistent sizing - this will be overridden by header media query above */
+    width: 48px;
+    height: 48px;
+    font-size: 1.4rem;
+  }
+
+  /* Dark mode toggle shadow fix for smaller mobile */
+  body.dark-mode .dark-mode-toggle {
+    box-shadow: 4px 4px 0 rgb(100, 100, 100) !important; /* Darker shadow in dark mode */
+  }
+
+  h1 {
+    font-size: 1.8rem;
   }
 
   h2 {
+    font-size: 0.9rem;
     margin-bottom: 1.5rem;
   }
 
   .notes-container {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr; /* Single column on mobile for better readability */
   }
 
+  /* Make individual content items even wider on smaller mobile */
+  .note {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  .todo-item {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  .timer-box {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  .note {
+    height: 120px; /* Smaller note height on mobile */
+  }
+
+  /* Mobile-specific container sizing */
   .weather-container {
     padding: 0.5rem;
   }
@@ -1566,13 +1736,13 @@ body.dark-mode .note:focus::placeholder {
   }
 
   .weather-label {
-    font-size: 0.7rem;
-    min-width: 80px;
+    font-size: 0.5rem; /* Consistent with other mobile sizes */
+    min-width: 40px;
   }
 
   .weather-value {
-    font-size: 0.7rem;
-    max-width: 120px;
+    font-size: 0.5rem; /* Consistent with other mobile sizes */
+    max-width: 100px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -1584,7 +1754,8 @@ body.dark-mode .note:focus::placeholder {
   }
 
   .weather-container.minimized .weather-value {
-    font-size: 0.7rem;
+    font-size: 0.5rem; /* Even smaller on mobile */
+    white-space: nowrap; /* Keep everything on one line */
   }
 }
 
@@ -1607,6 +1778,10 @@ body.dark-mode .note:focus::placeholder {
 /* Notes close button */
 .note-wrapper .delete-btn {
   color: #000000;
+  position: absolute; /* Ensure it's absolutely positioned */
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 2; /* Make sure it's above the note */
 }
 body.dark-mode .note-wrapper .delete-btn {
   color: #ffffff;
@@ -1708,7 +1883,7 @@ body.dark-mode .todo-item span[contenteditable="true"]:empty:before {
   position: static;
   left: auto;
   bottom: auto;
-  width: 200px;
+  width: 300px; /* Match note button width */
   padding: 1.1rem 1.5rem;
   font-family: "Press Start 2P", monospace;
   font-size: 1rem;
@@ -1757,17 +1932,20 @@ body.dark-mode #createNoteBtn:hover {
 
 @media screen and (min-width: 1025px) {
   .dark-mode-toggle {
-    position: fixed !important;
-    top: 1rem !important;
-    right: 1rem !important;
-    width: 40px;
-    height: 40px;
-    font-size: 1.2rem;
-    margin: 0 !important;
+    position: static !important; /* Keep in flexbox flow */
+    top: auto !important;
+    right: auto !important;
+    width: 56px; /* Match quote button height */
+    height: 56px; /* Square shape */
+    font-size: 1.6rem; /* Larger icons */
+    margin: 0 !important; /* Reset margin since it's now positioned by space-between */
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 1000;
+    box-shadow: 4px 4px 0 rgb(220, 220, 220); /* Light grey shadow - full shadow like others */
+    transform: translate(-4px, -4px); /* Full shadow offset like others */
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
   }
 }
 
@@ -1783,7 +1961,8 @@ body.dark-mode #createNoteBtn:hover {
   padding: 0.5rem 1rem;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: space-between; /* Dark mode left, sign-in right */
+  gap: 1rem;
   height: 80px;
   transition: transform 0.3s ease-in-out;
 }
@@ -1795,8 +1974,10 @@ body.dark-mode #createNoteBtn:hover {
 .hheader-center-group {
   display: flex;
   align-items: center;
-  gap: 2rem;
-  margin-left: 5rem;
+  gap: 1rem;
+  margin-left: 0;
+  /* Removed flex: 1 since we want it to only take needed space */
+  justify-content: flex-start; /* Keep quote elements together */
 }
 
 /* Responsive header - SIMPLE AND CLEAN */
@@ -1814,35 +1995,40 @@ body.dark-mode #createNoteBtn:hover {
     transform: translateX(-50%);
     width: 90%;
     max-width: 600px;
-    flex-direction: column;
+    flex-direction: column !important; /* Force vertical layout on tablet */
     height: auto;
     min-height: auto;
     padding: 1rem;
     z-index: 1100;
     background: transparent;
     border: none;
-    justify-content: center;
+    justify-content: center !important; /* Force center justification */
   }
 
   .hheader-center-group {
-    flex-direction: column;
+    flex-direction: column !important;
     gap: 1rem;
     margin: 0;
     width: 100%;
     align-items: center;
+    flex: none !important; /* Override any flex: 1 from desktop */
   }
 
   .dark-mode-toggle {
     order: -1;
     margin: 0;
     margin-top: -20px;
+    /* Keep desktop size for consistency */
+    width: 56px !important;
+    height: 56px !important;
+    font-size: 1.6rem !important;
   }
 
   .header-auth-btn {
     order: 1;
     width: 100% !important;
     max-width: 600px !important;
-    height: auto;
+    height: 56px !important; /* Match desktop height */
     margin: 1rem auto !important;
     padding: 0.8rem 1.5rem !important;
     position: relative !important;
@@ -1855,13 +2041,14 @@ body.dark-mode #createNoteBtn:hover {
     align-items: center !important;
     justify-content: center !important;
     white-space: nowrap !important;
+    box-shadow: 4px 4px 0 rgb(160, 160, 160) !important;
   }
 
   .header-quote-btn {
     order: 2;
     width: 100% !important;
     max-width: 600px !important;
-    height: auto;
+    height: 56px !important; /* Match desktop height */
     margin: 1rem auto !important;
     padding: 0.8rem 1.5rem !important;
     display: block !important;
@@ -1871,7 +2058,7 @@ body.dark-mode #createNoteBtn:hover {
     order: 3;
     width: 100% !important;
     max-width: 600px !important;
-    height: auto;
+    height: 56px !important; /* Match desktop height */
     margin: 1rem auto !important;
     padding: 0.8rem 1.5rem !important;
     display: block !important;
@@ -1883,25 +2070,96 @@ body.dark-mode #createNoteBtn:hover {
     margin: 1rem auto;
   }
 
+  /* Make all main content buttons match quote button width on tablet */
+  .todo-heading,
+  .stopwatch-heading,
+  .weather-heading {
+    width: 100% !important;
+    max-width: 600px !important;
+  }
+
+  /* Make all containers match quote button width on tablet */
+  .weather-container,
+  .date-time-container,
+  .notes-container,
+  .todo-list-container,
+  .timer-container {
+    width: 100% !important;
+    max-width: 600px !important;
+  }
+
+  /* Add tablet-specific spacing and content item sizing */
+  .container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: calc(2rem + 30px); /* Add 30px downward shift for tablet */
+  }
+
+  h1 {
+    margin-top: calc(2rem + 30px); /* Add 30px downward shift for tablet */
+    margin-bottom: 0.5rem;
+  }
+
+  /* Override main-sections to stack vertically on tablet */
+  .main-sections {
+    flex-direction: column;
+    gap: 2rem;
+    margin: 2rem 0; /* Remove horizontal margins to match header width */
+    max-width: 600px;
+    width: 100%; /* Ensure full width like header */
+  }
+
+  .section {
+    width: 100%;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  /* Make individual content items wider on tablet */
+  .note {
+    max-width: 100% !important; /* Remove 300px constraint */
+    width: 100% !important;
+  }
+
+  .todo-item {
+    max-width: 100% !important; /* Remove 300px constraint */
+    width: 100% !important;
+  }
+
+  .timer-box {
+    max-width: 100% !important; /* Remove 300px constraint */
+    width: 100% !important;
+  }
+
   /* Adjust body padding to account for header above notes */
   body {
-    padding-top: 370px;
+    padding-top: 370px; /* Original 340px + 30px additional spacing */
   }
 }
 
 @media (max-width: 768px) {
   .main-header {
     top: 0.5rem;
-    width: 95%;
+    width: 100%;
     max-width: 600px;
   }
 
   .dark-mode-toggle {
     margin-top: -20px;
+    /* Keep desktop size for consistency */
+    width: 56px !important;
+    height: 56px !important;
+    font-size: 1.6rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: 4px 4px 0 rgb(220, 220, 220) !important; /* Light grey shadow */
+    transform: translate(-4px, -4px) !important;
   }
 
   .header-blank-box {
-    height: 90px;
+    height: 56px !important; /* Match other buttons */
     margin-top: 10px;
     order: 3;
     width: 100% !important;
@@ -1913,6 +2171,9 @@ body.dark-mode #createNoteBtn:hover {
     order: 2;
     width: 100% !important;
     max-width: 600px !important;
+    height: 56px !important; /* Match desktop height */
+    box-shadow: 4px 4px 0 rgb(180, 120, 255) !important; /* Purple shadow for mobile */
+    transform: translate(-4px, -4px) !important;
   }
 
   .header-auth-btn {
@@ -1922,41 +2183,51 @@ body.dark-mode #createNoteBtn:hover {
     left: auto !important;
     width: 100% !important;
     max-width: 600px !important;
-    height: 50px !important;
+    height: 56px !important; /* Match desktop height */
     font-size: 0.7rem !important;
     order: 1;
+    box-shadow: 4px 4px 0 rgb(160, 160, 160) !important;
+    transform: translate(-4px, -4px) !important;
   }
 
   body {
-    padding-top: 380px;
+    padding-top: 340px; /* Reduced for consistent button heights */
   }
 }
 
 @media (max-width: 480px) {
   .main-header {
     top: 0.5rem;
-    width: 95%;
+    width: 100%;
     max-width: 600px;
     padding: 0.8rem;
   }
 
   .dark-mode-toggle {
-    width: 32px;
-    height: 32px;
-    font-size: 1rem;
+    /* Keep desktop size but slightly smaller for mobile */
+    width: 48px !important;
+    height: 48px !important;
+    font-size: 1.4rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: 4px 4px 0 rgb(220, 220, 220) !important; /* Light grey shadow */
+    transform: translate(-4px, -4px) !important;
   }
 
   .header-quote-btn {
-    height: 45px;
+    height: 56px !important; /* Match desktop height */
     font-size: 0.6rem;
     margin-top: 10px;
     order: 2;
     width: 100% !important;
     max-width: 600px !important;
+    box-shadow: 4px 4px 0 rgb(180, 120, 255) !important; /* Purple shadow for mobile */
+    transform: translate(-4px, -4px) !important;
   }
 
   .header-blank-box {
-    height: 85px;
+    height: 56px !important; /* Match other buttons */
     margin-top: 10px;
     order: 3;
     width: 100% !important;
@@ -1970,13 +2241,15 @@ body.dark-mode #createNoteBtn:hover {
     left: auto !important;
     width: 100% !important;
     max-width: 600px !important;
-    height: 45px !important;
+    height: 56px !important; /* Match desktop height */
     font-size: 0.6rem !important;
     order: 1;
+    box-shadow: 4px 4px 0 rgb(160, 160, 160) !important;
+    transform: translate(-4px, -4px) !important;
   }
 
   body {
-    padding-top: 370px;
+    padding-top: 340px; /* Consistent with other mobile breakpoints */
   }
 }
 
@@ -2020,6 +2293,12 @@ body.dark-mode .main-header {
   white-space: normal;
   text-align: center;
   padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  top: 0;
+  transform: none;
 }
 
 .quote-ticker-text.quote-scrolling {
@@ -2071,7 +2350,7 @@ body.dark-mode .quote-ticker-container {
 
 /* Header auth buttons (Login/Signup) */
 .header-auth-btn {
-  width: 140px;
+  width: 140px; /* Make smaller as requested */
   padding: 0.8rem 1rem;
   font-family: "Press Start 2P", monospace;
   font-size: 0.7rem;
@@ -2085,10 +2364,11 @@ body.dark-mode .quote-ticker-container {
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   z-index: 2;
   text-shadow: none;
-  height: 45px;
+  height: 56px; /* Match quote button height */
   display: flex;
   align-items: center;
   justify-content: center;
+  /* Removed margin-left: auto since it's now a direct child */
 }
 
 .header-auth-btn:hover {
@@ -2115,42 +2395,29 @@ body.dark-mode .header-auth-btn:hover {
 
 @media (max-width: 1200px) {
   .header-auth-btn {
-    width: 120px;
+    width: 140px; /* Keep smaller */
     padding: 0.7rem 0.8rem;
   }
 }
 
-/* Desktop layout - position auth button at top-right of screen */
+/* Desktop layout - keep natural flow, no fixed positioning */
 @media (min-width: 1025px) {
   .hheader-center-group {
-    gap: 2rem;
+    gap: 1rem; /* Consistent gap */
   }
 
   .header-auth-btn {
-    position: fixed !important;
-    top: 0.8rem !important;
-    right: 1rem !important;
-    left: auto !important;
-    z-index: 1200 !important;
-    width: 240px !important;
-    height: 56px !important;
-    font-size: 0.8rem !important;
-    padding: 1.1rem 1.5rem !important;
-    order: initial !important;
-    margin: 0 !important;
+    position: static !important; /* Keep in natural flow */
+    width: 140px !important; /* Smaller size */
+    height: 56px !important; /* Match quote button height */
+    font-size: 0.7rem !important;
+    padding: 0.8rem 1rem !important;
+    margin: 0 !important; /* Reset margin since it's now positioned by space-between */
     transform: translate(-4px, -4px) !important;
     white-space: nowrap !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-  }
-
-  .header-quote-btn {
-    order: initial !important;
-  }
-
-  .header-blank-box {
-    order: initial !important;
   }
 
   .header-auth-btn:hover {
@@ -2159,6 +2426,96 @@ body.dark-mode .header-auth-btn:hover {
   }
 
   .main-header {
-    justify-content: flex-start;
+    justify-content: space-between; /* Dark mode left, sign-in right */
+    gap: 1rem;
+  }
+}
+
+/* Notification System */
+.notification {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-100%);
+  background: #4caf50;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-family: "Press Start 2P", monospace;
+  font-size: 0.6rem;
+  z-index: 10000;
+  max-width: 90vw;
+  width: auto;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.notification.error {
+  background: #f44336;
+}
+
+.notification.info {
+  background: #2196f3;
+}
+
+.notification.warning {
+  background: #ff9800;
+}
+
+/* Grey error notification for duplicate accounts */
+.notification.error-grey {
+  background: #757575;
+  color: white;
+  font-size: 0.65rem;
+  padding: 14px 24px;
+  border-radius: 10px;
+  border: 2px solid #424242;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
+}
+
+.notification.error-grey span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+}
+
+/* Grey info notification for auth processes */
+.notification.info-grey {
+  background: #616161;
+  color: white;
+  font-size: 0.6rem;
+  padding: 12px 20px;
+  border-radius: 8px;
+  border: 2px solid #424242;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.notification.info-grey span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: center;
+}
+
+/* Mobile responsive notifications */
+@media (max-width: 768px) {
+  .notification {
+    font-size: 0.55rem;
+    padding: 10px 16px;
+    top: 15px;
+    max-width: 95vw;
+  }
+
+  .notification.error-grey {
+    font-size: 0.6rem;
+    padding: 12px 20px;
+  }
+
+  .notification.info-grey {
+    font-size: 0.55rem;
+    padding: 10px 16px;
   }
 }
