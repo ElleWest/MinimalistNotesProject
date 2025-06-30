@@ -919,14 +919,13 @@ function closeSignInModal() {
   }
 }
 
-// Google sign-in with working fallback
+// Simple Google Sign-In - just prompt, no complex logic
 async function handleGoogleSignIn() {
-  console.log("🔐 Google sign-in selected");
+  console.log("🔐 Starting Google Sign-In");
 
   if (!window.google || !window.google.accounts) {
-    console.error("❌ Google Auth library not loaded");
     showNotification(
-      "Google Sign-In not available. Please refresh and try again.",
+      "Google Sign-In not available. Please try manual sign-in.",
       "error"
     );
     return;
@@ -934,93 +933,9 @@ async function handleGoogleSignIn() {
 
   try {
     showGreyNotification("Opening Google Sign-In...");
-
-    // First try One Tap
-    google.accounts.id.prompt((notification) => {
-      console.log(
-        "📋 One Tap notification:",
-        notification.getMomentType ? notification.getMomentType() : "unknown"
-      );
-
-      if (notification.isNotDisplayed && notification.isNotDisplayed()) {
-        console.log("ℹ️ One Tap not displayed, trying popup");
-        tryGooglePopup();
-      } else if (
-        notification.isSkippedMoment &&
-        notification.isSkippedMoment()
-      ) {
-        console.log("ℹ️ One Tap skipped, trying popup");
-        tryGooglePopup();
-      }
-    });
+    google.accounts.id.prompt();
   } catch (error) {
-    console.error("❌ One Tap failed, trying popup:", error);
-    tryGooglePopup();
-  }
-}
-
-// Fallback popup method
-function tryGooglePopup() {
-  try {
-    // Initialize OAuth2 for popup
-    google.accounts.oauth2
-      .initTokenClient({
-        client_id:
-          "1038950117037-i0buqo6336f193107jlqbuk4egkn85pn.apps.googleusercontent.com",
-        scope: "email profile",
-        callback: (response) => {
-          if (response.access_token) {
-            console.log("✅ Got OAuth token, fetching user info");
-            fetchGoogleUserInfo(response.access_token);
-          } else {
-            console.error("❌ No access token received");
-            showNotification(
-              "Google Sign-In failed. Please try manual sign-in.",
-              "error"
-            );
-          }
-        },
-      })
-      .requestAccessToken();
-  } catch (error) {
-    console.error("❌ Popup method also failed:", error);
-    showNotification(
-      "Google Sign-In not available. Please try manual sign-in.",
-      "error"
-    );
-  }
-}
-
-// Fetch user info from Google API
-async function fetchGoogleUserInfo(accessToken) {
-  try {
-    const response = await fetch(
-      "https://www.googleapis.com/oauth2/v2/userinfo",
-      {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      }
-    );
-
-    const userInfo = await response.json();
-    console.log("👤 Google user info:", userInfo);
-
-    // Create a credential-like response for our existing handler
-    const mockCredential = {
-      credential: btoa(
-        JSON.stringify({
-          sub: userInfo.id,
-          email: userInfo.email,
-          name: userInfo.name,
-          picture: userInfo.picture,
-        })
-      ),
-    };
-
-    await handleCredentialResponse(mockCredential);
-  } catch (error) {
-    console.error("❌ Failed to fetch user info:", error);
+    console.error("❌ Google Sign-In failed:", error);
     showNotification(
       "Google Sign-In failed. Please try manual sign-in.",
       "error"
@@ -1349,42 +1264,15 @@ document.addEventListener("DOMContentLoaded", () => {
   // Check for existing session first (before Google Auth init)
   checkExistingSession();
 
-  // Try to initialize Google Auth immediately
-  if (window.google && window.google.accounts) {
-    console.log("⚡ Google library already loaded");
-    initializeGoogleAuth();
-  } else {
-    console.log("⏳ Waiting for Google library to load...");
-
-    // Wait for Google library with multiple attempts
-    let attempts = 0;
-    const maxAttempts = 10;
-
-    const checkGoogleLibrary = () => {
-      attempts++;
-
-      if (window.google && window.google.accounts) {
-        console.log(`✅ Google library loaded after ${attempts} attempts`);
-        initializeGoogleAuth();
-        return;
-      }
-
-      if (attempts < maxAttempts) {
-        console.log(
-          `⏳ Attempt ${attempts}/${maxAttempts} - Google library not ready yet`
-        );
-        setTimeout(checkGoogleLibrary, 500);
-      } else {
-        console.warn("⚠️ Google library failed to load after maximum attempts");
-        console.log("📱 Manual sign-in will still work");
-        // Still initialize the UI without Google library
-        updateSignInUI();
-      }
-    };
-
-    // Start checking immediately, then every 500ms
-    setTimeout(checkGoogleLibrary, 100);
-  }
+  // Simple Google library initialization
+  setTimeout(() => {
+    if (window.google && window.google.accounts) {
+      initializeGoogleAuth();
+    } else {
+      console.log("📱 Google library not loaded, manual sign-in available");
+      updateSignInUI();
+    }
+  }, 1000);
 
   // Date and Time Functionality
   const dateDisplay = document.getElementById("dateDisplay");
