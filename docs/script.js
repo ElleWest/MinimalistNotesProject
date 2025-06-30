@@ -1243,18 +1243,17 @@ function initializeGoogleAuth() {
         callback: handleCredentialResponse,
         auto_select: false,
         cancel_on_tap_outside: false,
+        use_fedcm_for_prompt: false,
       });
-
-      // Initialize the sign-in button
-      updateSignInUI();
 
       console.log("✅ Google Auth initialized successfully");
     } catch (error) {
       console.error("❌ Google Auth initialization failed:", error);
     }
-  } else {
-    console.warn("⚠️ Google Auth library not fully loaded yet");
   }
+
+  // Always update UI regardless
+  updateSignInUI();
 }
 
 // Simple document ready handler
