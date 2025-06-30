@@ -1084,11 +1084,12 @@ function tryRedirectSignIn() {
 
   const clientId =
     "1038950117037-i0buqo6336f193107jlqbuk4egkn85pn.apps.googleusercontent.com";
+  // Use exact URL without any manipulation
   const redirectUri = encodeURIComponent(
-    window.location.origin + window.location.pathname
+    "https://ellewest.github.io/MinimalistNotesProject/"
   );
   const scope = "openid profile email";
-  const responseType = "token id_token";
+  const responseType = "id_token"; // Changed to just id_token for simpler flow
   const state = Math.random().toString(36).substring(2, 15);
 
   // Store state for verification
@@ -1110,55 +1111,38 @@ function tryRedirectSignIn() {
 
 // Handle OAuth redirect response
 function handleOAuthRedirect() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const code = urlParams.get("code");
+  // Check for both authorization code and ID token responses
+  const urlParams = new URLSearchParams(
+    window.location.hash.substring(1) || window.location.search
+  );
+  const idToken = urlParams.get("id_token");
   const state = urlParams.get("state");
   const error = urlParams.get("error");
 
   if (error) {
     console.error("❌ OAuth error:", error);
+    showNotification("Sign-in failed. Please try again.", "error");
     return;
   }
 
-  if (code && state) {
+  if (idToken) {
     const storedState = sessionStorage.getItem("oauth_state");
-    if (state !== storedState) {
+    if (state && state !== storedState) {
       console.error("❌ OAuth state mismatch");
+      showNotification(
+        "Security verification failed. Please try again.",
+        "error"
+      );
       return;
     }
 
-    console.log("✅ OAuth redirect successful, exchanging code for token...");
-    exchangeCodeForToken(code);
-  }
-}
+    // Process the ID token
+    handleCredentialResponse({ credential: idToken });
 
-// Exchange authorization code for token
-async function exchangeCodeForToken(code) {
-  try {
-    // This should be done on your backend for security, but for demo purposes:
-    console.log("🔄 Code received:", code);
-
-    // Simulate token exchange process
-    showGreyNotification("Processing sign-in...");
-
-    // In a real app, you'd send the code to your backend to exchange for tokens
-    // For now, simulate success after a brief delay
-    setTimeout(() => {
-      showNotification(
-        "Sign-in successful! Feature in development.",
-        "success"
-      );
-
-      // Clean the URL
-      const cleanUrl = window.location.origin + window.location.pathname;
-      window.history.replaceState({}, document.title, cleanUrl);
-
-      // Clear stored state
-      sessionStorage.removeItem("oauth_state");
-    }, 1000);
-  } catch (error) {
-    console.error("❌ Token exchange failed:", error);
-    showNotification("Sign-in failed. Please try again.", "error");
+    // Clean the URL and state
+    const cleanUrl = window.location.origin + window.location.pathname;
+    window.history.replaceState({}, document.title, cleanUrl);
+    sessionStorage.removeItem("oauth_state");
   }
 }
 
@@ -1374,7 +1358,7 @@ async function checkExistingSession() {
 
 // Initialize Google Auth when page loads
 function initializeGoogleAuth() {
-  // Check if we're returning from OAuth redirect
+  // First check if we're returning from OAuth redirect
   handleOAuthRedirect();
 
   if (window.google) {
@@ -1389,18 +1373,6 @@ function initializeGoogleAuth() {
 
       // Initialize the sign-in button
       updateSignInUI();
-
-      // Hide any Google-generated elements that might appear
-      setTimeout(() => {
-        const googleElements = document.querySelectorAll(
-          "[data-client_id], .g_id_signin"
-        );
-        googleElements.forEach((el) => {
-          if (el.id !== "signinBtn") {
-            el.style.display = "none";
-          }
-        });
-      }, 500);
 
       console.log("✅ Google Auth initialized successfully");
     } catch (error) {
