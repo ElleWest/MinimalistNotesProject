@@ -919,7 +919,7 @@ function closeSignInModal() {
   }
 }
 
-// Simple Google Sign-In - just prompt, no complex logic
+// Simple Google Sign-In - with Firefox compatibility
 async function handleGoogleSignIn() {
   console.log("🔐 Starting Google Sign-In");
 
@@ -933,13 +933,54 @@ async function handleGoogleSignIn() {
 
   try {
     showGreyNotification("Opening Google Sign-In...");
-    google.accounts.id.prompt();
+
+    // Firefox-specific handling
+    const isFirefox = navigator.userAgent.toLowerCase().includes("firefox");
+
+    if (isFirefox) {
+      console.log("🦊 Firefox detected, using alternative sign-in method");
+      // Use renderButton method for Firefox instead of prompt()
+      const buttonContainer = document.createElement("div");
+      buttonContainer.style.display = "none";
+      document.body.appendChild(buttonContainer);
+
+      google.accounts.id.renderButton(buttonContainer, {
+        theme: "outline",
+        size: "large",
+        type: "standard",
+        width: 250,
+        logo_alignment: "left",
+      });
+
+      // Trigger the hidden button
+      setTimeout(() => {
+        const googleButton = buttonContainer.querySelector('[role="button"]');
+        if (googleButton) {
+          googleButton.click();
+        } else {
+          // Fallback to prompt if button rendering fails
+          google.accounts.id.prompt();
+        }
+      }, 100);
+    } else {
+      // Chrome and other browsers
+      google.accounts.id.prompt();
+    }
   } catch (error) {
     console.error("❌ Google Sign-In failed:", error);
-    showNotification(
-      "Google Sign-In failed. Please try manual sign-in.",
-      "error"
-    );
+
+    const isFirefox = navigator.userAgent.toLowerCase().includes("firefox");
+    if (isFirefox) {
+      showNotification(
+        "Firefox detected: Please allow popups and disable tracking protection for this site, then try again.",
+        "error"
+      );
+    } else {
+      showNotification(
+        "Google Sign-In failed. Please try manual sign-in.",
+        "error"
+      );
+    }
   }
 }
 
@@ -1237,14 +1278,25 @@ function initializeGoogleAuth() {
     try {
       console.log("📚 Google library detected, initializing...");
 
-      google.accounts.id.initialize({
+      const isFirefox = navigator.userAgent.toLowerCase().includes("firefox");
+
+      const config = {
         client_id:
           "1038950117037-i0buqo6336f193107jlqbuk4egkn85pn.apps.googleusercontent.com",
         callback: handleCredentialResponse,
         auto_select: false,
         cancel_on_tap_outside: false,
         use_fedcm_for_prompt: false,
-      });
+      };
+
+      // Firefox-specific configuration
+      if (isFirefox) {
+        console.log("🦊 Applying Firefox-specific Google Auth config");
+        config.ux_mode = "popup"; // Force popup mode for Firefox
+        config.context = "signin"; // Explicit context for Firefox
+      }
+
+      google.accounts.id.initialize(config);
 
       console.log("✅ Google Auth initialized successfully");
     } catch (error) {
