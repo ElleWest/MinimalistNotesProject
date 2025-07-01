@@ -23,17 +23,17 @@ MinimalistNotesProject/
 
 ## ✨ Features
 
-- **📝 Note Management**: Create, edit, and delete notes with real-time auto-save
-- **✅ Todo Management**: Add, complete, and delete todos with persistent storage
+- **📝 Note Management**: Create, edit, and delete notes 
+- **✅ Todo Management**: Add, complete, and delete todos 
 - **⏱️ Timer System**: Multiple named timers with start/pause/reset functionality
-- **🔐 Authentication**: Google Sign-In and manual email/password registration with personalized data isolation
+- **🔐 Authentication**: Google Sign-In and manual email/password registration 
 - **💬 Daily Quotes**: Inspirational quotes from multiple API sources
 - **🌤️ Weather Integration**: Real-time weather updates for your location
 - **📊 Dashboard**: Live date, time, and day progress tracking
-- **☁️ Cloud Storage**: All data persisted to MongoDB with user-specific access
-- **📱 Responsive Design**: Works seamlessly on desktop and mobile devices
+- **☁️ Cloud Storage**: All data kept in MongoDB with user-specific access
+- **📱 Responsive Design**: Works on desktop and mobile devices
 - **🚀 Full-Stack Architecture**: Node.js/Express backend with REST API
-- **🎨 Clean UI**: Minimalist, distraction-free design with NES style
+- **🎨 Clean UI**: Minimalist design with NES style
 
 ## 🚀 Installation & Setup
 
@@ -154,7 +154,7 @@ Please wait a moment if the app seems slow initially.
 3. **Manage todos** with real-time persistence
 4. **Use timers** for task tracking with custom names
 5. **Get inspired** with daily quotes (click refresh for new quotes)
-6. **Check weather** for current conditions
+6. **Check weather** for current weather conditions
 7. **Sign out** to clear local data and secure your session
 
 ## 🧪 Test Cases
@@ -183,7 +183,7 @@ Please wait a moment if the app seems slow initially.
 
 - Click "Notes" button → type content in new note
 - Edit existing notes by clicking and typing
-- **Expected:** Auto-saves after 1 second, up to 15 notes max, persists on refresh
+- **Expected:** Notes are saved, up to 15 notes max
 
 **Delete Notes**
 
@@ -197,7 +197,7 @@ Please wait a moment if the app seems slow initially.
 - Click "To-Do List" heading → type item → press Enter
 - Click checkbox to mark complete/incomplete (strikethrough effect)
 - Click "×" button to delete todos
-- **Expected:** Up to 30 todos, all changes persist and sync across sessions
+- **Expected:** Todos can be created (30 max)
 
 ### 4. Timer/Stopwatch Functionality
 
@@ -206,7 +206,7 @@ Please wait a moment if the app seems slow initially.
 - Click "Stopwatch" heading → enter timer name → press Enter
 - Use ▶️ (start), ⏸️ (pause), 🔄 (reset), ⏹️ (delete) buttons
 - Edit timer names by clicking on title
-- **Expected:** Multiple independent timers (up to 30), time tracking persists across sessions
+- **Expected:** Multiple independent timers (up to 30)
 
 ### 5. Quote API Integration
 
@@ -214,21 +214,6 @@ Please wait a moment if the app seems slow initially.
 
 - Click "Quote" button in header
 - **Expected:** "Loading quote..." appears, then displays inspirational quote with author
-
-**API Fallback System**
-
-- Test with network issues or API failures
-- **Expected:** System tries API Ninjas first, then DummyJSON backup, finally uses local fallback quotes
-
-**Quote Display Modes**
-
-- Test with both short and long quotes
-- **Expected:** Short quotes display statically, long quotes (>50 chars) show scrolling animation
-
-**Responsive Quote Text**
-
-- Test on mobile/tablet vs desktop
-- **Expected:** Default text shows "Click Quote" on mobile, "Click 'Quote' to get inspired!" on desktop
 
 ### 6. Weather API Integration
 
@@ -242,37 +227,17 @@ Please wait a moment if the app seems slow initially.
 - Enter valid city name
 - **Expected:** Shows location, country, temperature (°C), air quality index, wind speed, rain probability, humidity
 
-**Weather API Error Handling**
-
-- Enter invalid city name or test with network issues
-- **Expected:** All weather fields show "--" values, no app crashes
-
-**Location Input Debouncing**
-
-- Type rapidly in location field
-- **Expected:** API calls only made after typing stops for 500ms (prevents excessive requests)
-
-**Weather Data Accuracy**
-
-- Test with multiple known cities
-- **Expected:** Temperature in Celsius, wind in km/h, humidity as percentage, AQI rating 1-5
-
 ### 7. Flip Box Functionality
 
 **Date/Time Container Toggle**
 
 - Click on the date/time display container in header
-- **Expected:** Container flips/toggles to show different view (adds/removes "flipped" class)
+- **Expected:** Container flips/toggles to show different view
 
 **Flip Animation**
 
-- Click date/time container multiple times
+- Click date/time container
 - **Expected:** Smooth flip transition between normal and flipped states
-
-**Responsive Flip Behavior**
-
-- Test flip functionality on different screen sizes
-- **Expected:** Flip animation works consistently across mobile, tablet, and desktop
 
 ### 8. Dark Mode Toggle
 
@@ -286,40 +251,10 @@ Please wait a moment if the app seems slow initially.
 - Click dark mode toggle again while in dark mode
 - **Expected:** Page returns to light theme with light background and dark text
 
-**Dark Mode Persistence**
-
-- Enable dark mode → refresh page
-- **Expected:** Dark mode setting persists across browser sessions (stored in localStorage)
-
 **Theme Consistency**
 
 - Toggle dark mode and check all elements
 - **Expected:** All components (notes, todos, timers, weather, buttons) switch consistently between themes
-
-**Dark Mode Visual Elements**
-
-- Test dark mode appearance across all components
-- **Expected:**
-  - Background: Dark (#333 or similar)
-  - Text: Light/white
-  - Buttons: Proper contrast with dark shadows
-  - Input fields: Dark backgrounds with light text
-  - Containers: Dark styling with appropriate borders/shadows
-
-**Icon State Changes**
-
-- Observe dark mode toggle button icon
-- **Expected:** Shows sun icon in dark mode, moon icon in light mode
-
-**Cross-Component Dark Mode**
-
-- Create notes, todos, timers in both light and dark mode
-- **Expected:** All user-created content displays properly in both themes
-
-**Dark Mode Quote Display**
-
-- Test quote functionality in dark mode
-- **Expected:** Quote text displays with proper contrast and readability in dark theme
 
 ### 9. Desktop Header Behavior
 
@@ -329,11 +264,6 @@ Please wait a moment if the app seems slow initially.
 - **Expected:** Header disappears; scroll up to show header again
 
 ### 10. Data Persistence
-
-**Session Persistence**
-
-- Create content → refresh page
-- **Expected:** All data remains intact
 
 **User Data Isolation**
 

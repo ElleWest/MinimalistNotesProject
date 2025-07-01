@@ -61,6 +61,24 @@ body::-webkit-scrollbar-thumb:hover {
   align-items: flex-start;
 }
 
+/* Ensure equal spacing and consistent layout on larger screens */
+@media screen and (min-width: 1025px) {
+  .main-sections {
+    justify-content: space-evenly;
+    gap: 2rem;
+  }
+
+  .section {
+    flex: 1 1 auto;
+    max-width: 300px;
+  }
+
+  .datetime-weather-section {
+    flex: 1 1 auto;
+    max-width: 300px;
+  }
+}
+
 .section {
   flex: 1;
   min-width: 200px; /* Minimum width before wrapping */
@@ -72,9 +90,10 @@ body::-webkit-scrollbar-thumb:hover {
 
 /* Specific styling for datetime-weather section */
 .datetime-weather-section {
+  flex: 1;
   flex-direction: column;
   align-items: center;
-  max-width: 320px;
+  min-width: 200px;
 }
 
 /* Main title styling */
@@ -773,7 +792,8 @@ body.dark-mode .timer-controls button:hover {
 /* Date/time flip box with orange pixel shadow */
 .date-time-container {
   position: static; /* Changed from absolute */
-  width: 320px;
+  width: 100%;
+  max-width: 300px;
   min-height: 120px;
   padding: 0.8rem 1.5rem;
   background-color: #ffffff;
@@ -832,7 +852,8 @@ body.dark-mode .date-time-container:hover {
   z-index: 1;
 }
 
-.flip-box-front .date-time-content {
+.flip-box-front .date-time-content,
+.flip-box-back .date-time-content {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -842,7 +863,8 @@ body.dark-mode .date-time-container:hover {
   height: 100%;
 }
 
-.flip-box-front .date-time-item {
+.flip-box-front .date-time-item,
+.flip-box-back .date-time-item {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -851,17 +873,21 @@ body.dark-mode .date-time-container:hover {
 }
 
 .flip-box-front .date-time-label,
-.flip-box-front .date-time-value {
+.flip-box-front .date-time-value,
+.flip-box-back .date-time-label,
+.flip-box-back .date-time-value {
   text-align: center;
   width: 100%;
 }
 
-.flip-box-front .date-time-label {
+.flip-box-front .date-time-label,
+.flip-box-back .date-time-label {
   font-size: 0.9rem;
   margin-bottom: 0.2rem;
 }
 
-.flip-box-front .date-time-value {
+.flip-box-front .date-time-value,
+.flip-box-back .date-time-value {
   font-size: 0.9rem;
   font-weight: bold;
   margin-bottom: 0.2rem;
@@ -869,7 +895,11 @@ body.dark-mode .date-time-container:hover {
 
 .progress-item {
   width: 100%;
-  justify-content: space-between;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
 .progress-container {
@@ -877,6 +907,7 @@ body.dark-mode .date-time-container:hover {
   align-items: center;
   gap: 1rem;
   width: 200px;
+  max-width: 90%;
 }
 
 .progress-bar {
@@ -916,13 +947,15 @@ body.dark-mode .date-time-container:hover {
     gap: 3rem;
   }
 
-  /* Prevent elements from becoming too large */
+  /* Ensure all sections grow equally and maintain consistent max-width */
   .section {
+    flex: 1;
     max-width: 320px;
   }
 
-  /* Keep datetime-weather section properly sized */
+  /* Ensure datetime-weather section matches other sections */
   .datetime-weather-section {
+    flex: 1;
     max-width: 320px;
   }
 }
