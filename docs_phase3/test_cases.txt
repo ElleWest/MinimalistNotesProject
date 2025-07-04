@@ -1,0 +1,96 @@
+Test cases can be viewed in README.md in the GitHub repo
+
+🧪 Test Cases
+
+1. Authentication
+Google Sign-In
+
+Click "Sign In" → "Google Sign-In"
+Complete Google OAuth
+Expected: User signed in with welcome message
+
+Manual Sign-In
+Click "Sign In" → Enter email/password → "Sign In"
+Expected: New users auto-registered, existing users logged in
+
+Sign Out
+Click user name in header → confirm sign out
+Expected: User signed out, data cleared
+
+2. Notes Management
+Create & Edit Notes
+
+Click "Notes" button → type content in new note
+Edit existing notes by clicking and typing
+Expected: Notes are created and can be deleted (up to 15 notes max)
+
+Delete Notes
+Click "×" button on any note
+Expected: Note deleted immediately and removed from backend
+
+3. To-do Management
+
+Add & Manage Todos
+Click "To-Do List" heading → type item → press Enter
+Click checkbox to mark complete/incomplete (strikethrough effect)
+Click "×" button to delete todos
+Expected: Todos can be created, striked through and deleted (30 max)
+
+4. Timer/Stopwatch Functionality
+
+Create & Control Timers
+Click "Stopwatch" heading → enter timer name → press Enter
+Use ▶️ (start), ⏸️ (pause), 🔄 (reset), ⏹️ (delete) buttons
+Edit timer names by clicking on title
+Expected: Multiple independent timers can be started, paused, reset and deleted (up to 30)
+
+5. Quote API Integration
+
+Quote Retrieval
+Click "Quote" button in header
+Expected: "Loading quote..." appears, then displays inspirational quote with author
+
+6. Weather API Integration
+Location Weather Lookup
+
+Click in weather location input field → type city name (e.g., "London")
+Expected: Real-time weather data updates after 500ms delay (debounced input)
+Weather Data Display
+
+Enter valid city name
+Expected: Shows location, country, temperature (°C), air quality index, wind speed, rain probability, humidity
+
+7. Flip Box Functionality
+Date/Time Container Toggle
+
+Click on the date/time display container in header
+Expected: Container flips/toggles to show different view (Day Left)
+Flip Animation
+Click date/time container
+Expected: Smooth flip transition between normal and flipped states
+
+8. Dark Mode Toggle
+Dark Mode Activation
+
+Click the dark mode toggle button (moon/sun icon) in header
+Expected: Page switches to dark theme with dark background and light text
+Dark Mode Deactivation
+
+Click dark mode toggle again while in dark mode
+Expected: Page returns to light theme with light background and dark text
+Theme Consistency
+
+Toggle dark mode and check all elements
+Expected: All components (notes, todos, timers, weather, buttons) switch consistently between themes
+
+9. Desktop Header Behavior
+Header Auto-Hide on Scroll
+
+On desktop, scroll down the page
+Expected: Header disappears; scroll up to show header again
+
+10. Data Persistence
+User Data Isolation
+
+Sign in as different users
+Expected: Each user sees only their own data
