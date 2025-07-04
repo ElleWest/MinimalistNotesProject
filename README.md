@@ -2,6 +2,8 @@
 
 A full-stack minimalist note-taking web application built for IU's "Project: Java and Web Development (DLBCSPJWD01)" course. This project allows users to keep track of notes and time tasks with a clean, distraction-free interface.
 
+Note: If testing on GitHub pages please allow 60 seconds for the backend to spin up in Render's free tier (first sign in won't work but second sign in will once 60 seconds have passed).
+
 ## 🏗️ Project Structure
 
 ```
@@ -183,7 +185,7 @@ Please wait a moment if the app seems slow initially.
 
 - Click "Notes" button → type content in new note
 - Edit existing notes by clicking and typing
-- **Expected:** Notes are saved, up to 15 notes max
+- **Expected:** Notes are created & can be deleted (up to 15 notes max)
 
 **Delete Notes**
 
@@ -197,7 +199,7 @@ Please wait a moment if the app seems slow initially.
 - Click "To-Do List" heading → type item → press Enter
 - Click checkbox to mark complete/incomplete (strikethrough effect)
 - Click "×" button to delete todos
-- **Expected:** Todos can be created (30 max)
+- **Expected:** Todos can be created, striked through and deleted (30 max)
 
 ### 4. Timer/Stopwatch Functionality
 
@@ -206,7 +208,7 @@ Please wait a moment if the app seems slow initially.
 - Click "Stopwatch" heading → enter timer name → press Enter
 - Use ▶️ (start), ⏸️ (pause), 🔄 (reset), ⏹️ (delete) buttons
 - Edit timer names by clicking on title
-- **Expected:** Multiple independent timers (up to 30)
+- **Expected:** Multiple independent timers can be started, paused, reset and deleted (up to 30)
 
 ### 5. Quote API Integration
 
@@ -232,7 +234,7 @@ Please wait a moment if the app seems slow initially.
 **Date/Time Container Toggle**
 
 - Click on the date/time display container in header
-- **Expected:** Container flips/toggles to show different view
+- **Expected:** Container flips/toggles to show different view (Day Left)
 
 **Flip Animation**
 
