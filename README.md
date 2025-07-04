@@ -2,6 +2,8 @@
 
 A full-stack minimalist note-taking web application built for IU's "Project: Java and Web Development (DLBCSPJWD01)" course. This project allows users to keep track of notes and time tasks with a clean, distraction-free interface.
 
+Note: If testing on GitHub pages please allow 60 seconds for the backend to spin up in Render's free tier (first sign in won't work but second sign in will once 60 seconds have passed).
+
 ## 🏗️ Project Structure
 
 ```
